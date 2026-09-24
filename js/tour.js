@@ -1,15 +1,15 @@
-/* The stage clock of an autoplaying chart. Any chart that steps through states makes one of
-   these; the global pause in motion.js stops every clock at once and only Play resumes it.
-   While paused the clock still completes the current stage’s own reveal (progress runs to the
-   end of the dwell and stays there); it only stops stepping to the next stage. */
-(function (global) {
+(function(global) {
   'use strict';
-
   var Tour = {
-    make: function (opts) {
-      var state = { i: 0, paused: false, elapsed: 0, last: null, stop: null };
-      var dwell = opts.dwell || 6000;
-
+    make: function(opts) {
+      var state = {
+        i: 0,
+        paused: false,
+        elapsed: 0,
+        last: null,
+        stop: null
+      };
+      var dwell = opts.dwell || 6e3;
       function tick(t) {
         if (state.last === null) state.last = t;
         var dt = Math.min(100, t - state.last);
@@ -24,26 +24,39 @@
         }
         state.stop = global.M.frame(tick);
       }
-
       var handle = {
-        pause: function () { state.paused = true; if (opts.onPause) opts.onPause(); },
-        resume: function () { state.paused = false; if (state.elapsed >= dwell) state.elapsed = dwell - 1; if (opts.onResume) opts.onResume(); },
-        go: function (i) {
-          state.i = ((i % opts.steps) + opts.steps) % opts.steps;
+        pause: function() {
+          state.paused = true;
+          if (opts.onPause) opts.onPause();
+        },
+        resume: function() {
+          state.paused = false;
+          if (state.elapsed >= dwell) state.elapsed = dwell - 1;
+          if (opts.onResume) opts.onResume();
+        },
+        go: function(i) {
+          state.i = (i % opts.steps + opts.steps) % opts.steps;
           state.elapsed = 0;
           opts.onStep(state.i);
         },
-        advance: function (ms) { state.elapsed = Math.min(dwell, state.elapsed + ms); },
-        index: function () { return state.i; },
-        elapsed: function () { return state.elapsed; },
-        isPaused: function () { return state.paused; },
+        advance: function(ms) {
+          state.elapsed = Math.min(dwell, state.elapsed + ms);
+        },
+        index: function() {
+          return state.i;
+        },
+        elapsed: function() {
+          return state.elapsed;
+        },
+        isPaused: function() {
+          return state.paused;
+        }
       };
       global.M.register(handle);
       opts.onStep(0);
       state.stop = global.M.frame(tick);
       return handle;
-    },
+    }
   };
-
   global.Tour = Tour;
-}(window));
+})(window);

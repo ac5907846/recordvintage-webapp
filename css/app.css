@@ -1,6 +1,4 @@
-/* Companion app. The palette is the one the paper’s figures use (figures_v3/theme_v3.py):
-   navy for the record as published, pink for the record today, dark grey for the grant-time record,
-   teal for a supported mechanism, slate for a killed one, pastel fills with black text. */
+
 
 :root {
   --earlier: #1b2a49;
@@ -40,7 +38,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ------------------------------------------------------------------ header */
 .top {
   position: sticky;
   top: 0;
@@ -81,7 +78,6 @@ html, body {
 .tabs a:hover { color: var(--ink); background: var(--grid); }
 .tabs a.on { color: var(--ink); background: var(--plate); border-color: var(--spine); position: relative; top: 1px; }
 
-/* ------------------------------------------------------------------ layout */
 main { max-width: 1180px; margin: 0 auto; padding: 18px 24px 56px; }
 .panel[hidden] { display: none; }
 
@@ -102,7 +98,6 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .chartwrap { position: relative; width: 100%; }
 .chartwrap canvas { width: 100%; display: block; }
 
-/* ------------------------------------------------------------------ hero */
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr);
@@ -160,7 +155,6 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .steps button.on { background: var(--charcoal); }
 .steps button:hover { background: var(--killed); }
 
-/* ------------------------------------------------------------------ proposition tiles */
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
 .tile {
   background: var(--plate);
@@ -194,7 +188,6 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .chip.Pass { background: var(--tint-survives); }
 .verdictline { font-family: var(--serif); font-size: 15px; margin-top: 14px; color: var(--ink); }
 
-/* ------------------------------------------------------------------ keys and controls */
 .keys { display: flex; flex-wrap: wrap; gap: 4px; }
 .key {
   font-family: var(--sans);
@@ -220,7 +213,6 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .forkgroup .name { font-size: 11px; letter-spacing: .4px; text-transform: uppercase; color: var(--charcoal); margin-bottom: 3px; }
 .forkgroup .key { margin: 0 3px 3px 0; }
 
-/* ------------------------------------------------------------------ vintage lab */
 .labgrid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(240px, 1.3fr); gap: 16px 24px; align-items: start; margin: 6px 0 10px; }
 .cellgrid { display: grid; grid-template-columns: 96px 1fr 1fr; gap: 6px; align-items: stretch; }
 .cellgrid .corner, .cellgrid .colhead, .cellgrid .rowhead { font-size: 11.5px; color: var(--charcoal); align-self: center; }
@@ -250,7 +242,6 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .labout .row .k { color: var(--charcoal); }
 .labout .row.head .k { color: var(--ink); font-family: var(--serif); font-size: 14px; }
 
-/* ------------------------------------------------------------------ reading rule */
 .rulegrid { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(280px, 1.1fr); gap: 18px 28px; margin-top: 6px; }
 .question { margin-bottom: 14px; }
 .question .q { font-size: 13px; margin-bottom: 6px; line-height: 1.45; }
@@ -261,7 +252,6 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .ruleout ul { margin: 4px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; }
 .ruleout .note { font-size: 12px; color: var(--charcoal); margin-top: 10px; }
 
-/* ------------------------------------------------------------------ verify */
 table.tab { border-collapse: collapse; font-size: 12px; width: 100%; margin: 6px 0 0; }
 table.tab th { text-align: left; font-weight: 600; border-bottom: 1px solid var(--ink); padding: 5px 9px 5px 0; vertical-align: bottom; }
 table.tab td { padding: 4px 9px 4px 0; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; vertical-align: top; }
@@ -279,7 +269,6 @@ table.tab tr:last-child td { border-bottom: 1px solid var(--spine); }
 .prereg { font-size: 13px; line-height: 1.55; margin-top: 6px; }
 .prereg code { font-family: var(--mono); font-size: 12px; }
 
-/* ------------------------------------------------------------------ tooltip */
 .tip {
   position: fixed;
   z-index: 60;
@@ -299,7 +288,6 @@ table.tab tr:last-child td { border-bottom: 1px solid var(--spine); }
 .foot { border-top: 1px solid var(--spine); padding: 12px 24px 36px; font-size: 11.5px; color: var(--charcoal); }
 .foot span { max-width: 1180px; margin: 0 auto; display: block; }
 
-/* ------------------------------------------------------------------ responsive */
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }
   .stagetitle { min-height: 0; }
