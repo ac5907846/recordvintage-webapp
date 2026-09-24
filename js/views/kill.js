@@ -84,7 +84,7 @@
       D.hover(document.getElementById('variantcanvas'), function(x, y) {
         return self.hitVariant(x, y);
       });
-      document.getElementById('ledgernote').textContent = 'Each row on its own scale, zero marked; shading is the preregistered equivalence region where the test has one. 95% intervals except K1, 90%; K5a carries a standard error, R0 is a reproduction gate. Table III of the article. Verdict of the frozen rule: ' + data.verdict + ', partially supported.';
+      document.getElementById('ledgernote').textContent = 'Each row on its own scale, zero marked; shading is the preregistered equivalence region where the test has one. 95% intervals except K1, 90%; K5a carries a standard error, R0 is a reproduction gate. Table IV of the article. Verdict of the frozen rule: ' + data.verdict + ', partially supported.';
       document.getElementById('variantnote').textContent = 'K1 asks whether a symbol whose validity date postdates the cohort horizon, so could not have been on the record at the decision, is more often found on granted records. 90% cluster-robust intervals on 35 fields; the equivalence region is ±10% of the base rate. The logit row has no interval. Figure 4(b) of the article.';
     },
     renderLedger: function() {
