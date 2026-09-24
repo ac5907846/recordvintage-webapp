@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The record keeps being written</title>
+<meta name="description" content="Companion to a study of classification vintage and the measurement of knowledge recombination: one record, two of its own dates, the same 833,267 applications.">
+<link rel="preload" as="fetch" href="data/headline.json?v=1" crossorigin>
+<link rel="preload" as="fetch" href="data/multiverse.json?v=1" crossorigin>
+<link rel="stylesheet" href="css/app.css?v=1">
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="titleblock">
+    <div class="ttl">The record keeps being written</div>
+    <div class="sub" id="subtitle">Classification vintage and the measurement of knowledge recombination</div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <a href="#findings" data-tab="findings">Findings</a>
+    <a href="#record" data-tab="record">Record</a>
+    <a href="#vintage" data-tab="vintage">Vintage lab</a>
+    <a href="#kill" data-tab="kill">Kill tests</a>
+    <a href="#multiverse" data-tab="multiverse">Multiverse</a>
+    <a href="#rule" data-tab="rule">Reading rule</a>
+    <a href="#verify" data-tab="verify">Verify</a>
+  </nav>
+</header>
+
+<main id="main">
+
+  <section class="panel" id="p-findings">
+    <div class="hero" id="hero">
+      <div class="herostage">
+        <canvas id="herocanvas" aria-label="The argument of the paper in six pictures"></canvas>
+        <div class="boot" id="heroboot"><span></span><span></span><span></span></div>
+        <button class="playpill" id="heroplay" type="button">Pause</button>
+        <div class="progress"><span id="heroprog"></span></div>
+      </div>
+      <div class="heroside">
+        <div class="stagetitle" id="herotitle"></div>
+        <div class="readout" id="heroreadout"></div>
+        <div class="lede" id="herolede"></div>
+        <div class="steps" id="herosteps"></div>
+      </div>
+    </div>
+    <div class="tiles" id="tiles"></div>
+    <div class="verdictline" id="verdictline"></div>
+  </section>
+
+  <section class="panel" id="p-record" hidden>
+    <div class="block">
+      <div class="blockhead">
+        <h2>Three dated states of one record</h2>
+        <div class="keys" id="recordkeys"></div>
+      </div>
+      <div class="chartwrap"><canvas id="recordcanvas" aria-label="Record timeline, two lanes"></canvas></div>
+      <div class="readout small" id="recordreadout"></div>
+      <p class="fine" id="recordnote"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-vintage" hidden>
+    <div class="block">
+      <div class="blockhead">
+        <h2>Same applications, two states of the record</h2>
+      </div>
+      <div class="labgrid">
+        <div class="cellgrid" id="cellgrid"></div>
+        <div class="labout" id="labout"></div>
+      </div>
+      <div class="chartwrap"><canvas id="labcanvas" aria-label="Grant gap under the selected code type"></canvas></div>
+      <p class="fine" id="labnote"></p>
+    </div>
+    <div class="block">
+      <div class="blockhead">
+        <h2>Movement between novelty bins</h2>
+        <div class="keys" id="migkeys"></div>
+      </div>
+      <div class="chartwrap"><canvas id="migcanvas" aria-label="Bin migration between the two states of the record"></canvas></div>
+      <p class="fine" id="mignote"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-kill" hidden>
+    <div class="block">
+      <div class="blockhead">
+        <h2>Preregistered tests, in the order the preregistration set</h2>
+      </div>
+      <div class="chartwrap"><canvas id="ledgercanvas" aria-label="Ledger of preregistered tests"></canvas></div>
+      <p class="fine" id="ledgernote"></p>
+    </div>
+    <div class="block">
+      <div class="blockhead">
+        <h2>The decisive test and its variants</h2>
+        <div class="keys" id="variantkeys"></div>
+      </div>
+      <div class="chartwrap"><canvas id="variantcanvas" aria-label="K1 variants against the equivalence region"></canvas></div>
+      <p class="fine" id="variantnote"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-multiverse" hidden>
+    <div class="block">
+      <div class="blockhead">
+        <h2>432 specifications of the same estimate</h2>
+        <div class="keys" id="mvcolour"></div>
+      </div>
+      <div class="forkbar" id="forkbar"></div>
+      <div class="readout small" id="mvreadout"></div>
+      <div class="chartwrap"><canvas id="mvcanvas" aria-label="Specification curve"></canvas></div>
+      <div class="chartwrap"><canvas id="levcanvas" aria-label="Leverage of each choice"></canvas></div>
+      <p class="fine" id="mvnote"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="p-rule" hidden>
+    <div class="block">
+      <div class="blockhead">
+        <h2>Reading a maintained record</h2>
+      </div>
+      <div class="rulegrid">
+        <div class="questions" id="rulequestions"></div>
+        <div class="ruleout" id="ruleout"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-verify" hidden>
+    <div class="block" id="verifyrecompute"></div>
+    <div class="block" id="verifyprov"></div>
+    <div class="block" id="verifysources"></div>
+  </section>
+
+</main>
+
+<div class="tip" id="tip" hidden></div>
+
+<footer class="foot"><span id="footnote"></span></footer>
+
+<script src="js/motion.js?v=1"></script>
+<script src="js/draw.js?v=1"></script>
+<script src="js/tour.js?v=1"></script>
+<script src="js/hero.js?v=1"></script>
+<script src="js/views/findings.js?v=1"></script>
+<script src="js/views/record.js?v=1"></script>
+<script src="js/views/vintage.js?v=1"></script>
+<script src="js/views/kill.js?v=1"></script>
+<script src="js/views/multiverse.js?v=1"></script>
+<script src="js/views/rule.js?v=1"></script>
+<script src="js/views/verify.js?v=1"></script>
+<script src="js/boot.js?v=1"></script>
+</body>
+</html>
