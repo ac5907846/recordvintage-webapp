@@ -1,7 +1,7 @@
 (function(global) {
   'use strict';
   var D = global.D;
-  var VER = '?v=1';
+  var VER = '?v=2';
   var store = {};
   var built = {};
   var SUBTITLES = {
@@ -11,6 +11,7 @@
     kill: 'Preregistered tests reported as the frozen rule labelled them, failures beside successes',
     multiverse: 'How much of the answer belongs to the record and how much to ordinary modelling latitude',
     rule: 'What the paper asks of a reader holding any maintained taxonomy or classified record',
+    ask: 'The article’s own passages, retrieved by meaning in this browser; no text is generated',
     verify: 'Every number on these pages, the file and key it came from, and its recomputation'
   };
   var NEEDS = {
@@ -20,6 +21,7 @@
     kill: [ 'killtests' ],
     multiverse: [ 'multiverse' ],
     rule: [ 'rule' ],
+    ask: [ 'ask' ],
     verify: [ 'provenance', 'verify', 'headline', 'vintage', 'multiverse' ]
   };
   function get(name) {
@@ -60,6 +62,7 @@
       if (tab === 'kill') global.Kill.init(store.killtests);
       if (tab === 'multiverse') global.Multiverse.init(store.multiverse);
       if (tab === 'rule') global.Rule.init(store.rule);
+      if (tab === 'ask') global.Ask.init(store.ask);
       if (tab === 'verify') global.Verify.init({
         provenance: store.provenance,
         verify: store.verify,

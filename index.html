@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The record keeps being written</title>
 <meta name="description" content="Companion to a study of classification vintage and the measurement of knowledge recombination: one record, two of its own dates, the same 833,267 applications.">
-<link rel="preload" as="fetch" href="data/headline.json?v=1" crossorigin>
-<link rel="preload" as="fetch" href="data/multiverse.json?v=1" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=1">
+<link rel="preload" as="fetch" href="data/headline.json?v=2" crossorigin>
+<link rel="preload" as="fetch" href="data/multiverse.json?v=2" crossorigin>
+<link rel="stylesheet" href="css/app.css?v=2">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
     <a href="#kill" data-tab="kill">Kill tests</a>
     <a href="#multiverse" data-tab="multiverse">Multiverse</a>
     <a href="#rule" data-tab="rule">Reading rule</a>
+    <a href="#ask" data-tab="ask">Ask</a>
     <a href="#verify" data-tab="verify">Verify</a>
   </nav>
 </header>
@@ -126,6 +127,31 @@
     </div>
   </section>
 
+  <section class="panel" id="p-ask" hidden>
+    <div class="block">
+      <div class="blockhead">
+        <h2>Ask the paper</h2>
+        <div class="keys" id="askmode"></div>
+      </div>
+      <div class="askload">
+        <button class="playpill static" id="askload" type="button">Load model (23 MB, once)</button>
+        <div class="askprogress" id="askprogress" hidden><span id="askbar"></span></div>
+        <span class="fine" id="askstate"></span>
+      </div>
+      <form class="askform" id="askqform">
+        <div class="askrow">
+          <input type="text" id="askqinput" autocomplete="off" spellcheck="false" aria-label="A question about the paper" placeholder="A question about the paper">
+          <button class="key" type="submit">Find</button>
+        </div>
+      </form>
+      <form class="askform" id="askrform" hidden>
+        <textarea id="askrinput" rows="4" spellcheck="false" aria-label="A description of a classified record or taxonomy" placeholder="Describe a classified record or taxonomy: who keeps it, whether it is versioned, whether categories and assignments are dated, and on what schedule it is written."></textarea>
+        <div class="askrow"><button class="key" type="submit">Read</button></div>
+      </form>
+      <div class="askout" id="askout"></div>
+    </div>
+  </section>
+
   <section class="panel" id="p-verify" hidden>
     <div class="block" id="verifyrecompute"></div>
     <div class="block" id="verifyprov"></div>
@@ -138,17 +164,18 @@
 
 <footer class="foot"><span id="footnote"></span></footer>
 
-<script src="js/motion.js?v=1"></script>
-<script src="js/draw.js?v=1"></script>
-<script src="js/tour.js?v=1"></script>
-<script src="js/hero.js?v=1"></script>
-<script src="js/views/findings.js?v=1"></script>
-<script src="js/views/record.js?v=1"></script>
-<script src="js/views/vintage.js?v=1"></script>
-<script src="js/views/kill.js?v=1"></script>
-<script src="js/views/multiverse.js?v=1"></script>
-<script src="js/views/rule.js?v=1"></script>
-<script src="js/views/verify.js?v=1"></script>
-<script src="js/boot.js?v=1"></script>
+<script src="js/motion.js?v=2"></script>
+<script src="js/draw.js?v=2"></script>
+<script src="js/tour.js?v=2"></script>
+<script src="js/hero.js?v=2"></script>
+<script src="js/views/findings.js?v=2"></script>
+<script src="js/views/record.js?v=2"></script>
+<script src="js/views/vintage.js?v=2"></script>
+<script src="js/views/kill.js?v=2"></script>
+<script src="js/views/multiverse.js?v=2"></script>
+<script src="js/views/rule.js?v=2"></script>
+<script src="js/views/ask.js?v=2"></script>
+<script src="js/views/verify.js?v=2"></script>
+<script src="js/boot.js?v=2"></script>
 </body>
 </html>

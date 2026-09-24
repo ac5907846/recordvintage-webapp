@@ -252,6 +252,44 @@ p.fine, .fine { font-size: 12px; color: var(--charcoal); margin: 8px 0 0; max-wi
 .ruleout ul { margin: 4px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; }
 .ruleout .note { font-size: 12px; color: var(--charcoal); margin-top: 10px; }
 
+.askload { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 4px 0 10px; }
+.playpill.static { position: static; }
+.playpill:disabled { color: var(--charcoal); cursor: default; }
+.askprogress { width: 160px; max-width: 40%; height: 4px; background: var(--grid); border-radius: 2px; overflow: hidden; }
+.askprogress span { display: block; height: 100%; width: 0; background: var(--event); transition: width .3s linear; }
+.askprogress[hidden] { display: none; }
+.askload .fine { margin: 0; }
+.askform { margin: 0; }
+.askform input, .askform textarea {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--plate);
+  border: 1px solid var(--spine);
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin: 0;
+  line-height: 1.45;
+}
+.askform textarea { resize: vertical; min-height: 4.5em; }
+.askform input:focus, .askform textarea:focus { outline: 2px solid var(--tint-earlier); outline-offset: 0; border-color: var(--earlier); }
+.askform input::placeholder, .askform textarea::placeholder { color: #8e8b86; }
+.askrow { display: flex; gap: 8px; align-items: stretch; }
+.askrow input { flex: 1; min-width: 0; }
+.askform textarea + .askrow { margin-top: 8px; }
+.askform[hidden] { display: none; }
+.askout { margin-top: 12px; }
+.asklead { font-family: var(--serif); font-size: 15px; margin: 0 0 8px; }
+.passage { border-left: 3px solid var(--earlier); background: var(--faint); padding: 9px 12px; margin-bottom: 9px; font-size: 13px; line-height: 1.55; overflow-wrap: anywhere; }
+.passage .where { font-family: var(--serif); font-size: 12px; color: var(--charcoal); margin-bottom: 3px; }
+.passage mark { background: var(--tint-earlier); color: var(--ink); padding: 0 1px; }
+.simv { font-family: var(--serif); font-variant-numeric: tabular-nums; color: var(--charcoal); margin-left: 8px; }
+.askout .ask { border-left: 3px solid var(--survives); background: #f3f8f3; padding: 9px 12px; margin-bottom: 9px; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.askout .ask.muted { border-left-color: var(--killed); background: var(--faint); color: var(--charcoal); }
+.askout .ask .n { font-family: var(--serif); font-size: 12px; color: var(--charcoal); display: block; margin-bottom: 2px; }
+.askout .ask .also { color: var(--charcoal); font-size: 12.5px; }
+
 table.tab { border-collapse: collapse; font-size: 12px; width: 100%; margin: 6px 0 0; }
 table.tab th { text-align: left; font-weight: 600; border-bottom: 1px solid var(--ink); padding: 5px 9px 5px 0; vertical-align: bottom; }
 table.tab td { padding: 4px 9px 4px 0; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; vertical-align: top; }
