@@ -318,6 +318,12 @@
         state[id] = v;
         paint();
       },
+      select: function(id) {
+        items.forEach(function(o) {
+          state[o.id] = o.id === id;
+        });
+        paint();
+      },
       buttons: btns
     };
   }

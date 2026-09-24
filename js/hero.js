@@ -60,10 +60,6 @@
     global.addEventListener('resize', D.debounce(function() {
       self.layout();
     }));
-    els.play.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (M.isPaused()) M.resumeAll(); else M.pauseAll();
-    });
     D.hover(els.canvas, function(x, y) {
       return self.hit(x, y);
     });
@@ -86,12 +82,32 @@
       y1: this.box.h - this.B
     };
   };
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  }
+  function svg(inner) {
+    return '<svg viewBox="0 0 240 72" preserveAspectRatio="xMinYMid meet" aria-hidden="true">' + inner + '</svg>';
+  }
+  function txt(x, y, s, color, anchor, size) {
+    return '<text x="' + x + '" y="' + y + '" fill="' + (color || P.charcoal) + '" text-anchor="' + (anchor || 'start') + '" dominant-baseline="middle" font-size="' + (size || 10.5) + '">' + esc(s) + '</text>';
+  }
+  function arrow(x0, y0, x1, y1, color) {
+    var dx = x1 - x0, dy = y1 - y0, L = Math.sqrt(dx * dx + dy * dy) || 1, ux = dx / L, uy = dy / L;
+    var hx = x1 - ux * 7, hy = y1 - uy * 7;
+    return '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + hx + '" y2="' + hy + '" stroke="' + color + '" stroke-width="1.4"/>' + '<path d="M' + x1 + ' ' + y1 + 'L' + (hx - uy * 3.5) + ' ' + (hy + ux * 3.5) + 'L' + (hx + uy * 3.5) + ' ' + (hy - ux * 3.5) + 'Z" fill="' + color + '"/>';
+  }
+  function band(x0, x1, y0, y1) {
+    return '<rect x="' + Math.min(x0, x1) + '" y="' + y0 + '" width="' + Math.abs(x1 - x0) + '" height="' + (y1 - y0) + '" fill="' + P.band + '"/>' + '<line x1="' + x0 + '" y1="' + y0 + '" x2="' + x0 + '" y2="' + y1 + '" stroke="' + P.killed + '" stroke-width="1.2"/>' + '<line x1="' + x1 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y1 + '" stroke="' + P.killed + '" stroke-width="1.2"/>';
+  }
+  function chip(x, y, label, fill) {
+    var w = label.length * 6.4 + 14;
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="18" rx="3" fill="' + fill + '"/>' + txt(x + w / 2, y + 9.5, label, '#000', 'middle', 10.5);
+  }
   Hero.prototype.buildStages = function() {
     var h = this.h, self = this;
     var vint = this.mv.vintage_of_measure, levels = this.mv.levels.measure;
     return [ {
       title: 'One record, two dated states',
-      lede: 'One classification record per application, read at two of its own dates: as the office published it and as it stands today. The documents, the outcome and the construction rule are held fixed; only the state of the record varies.',
       cells: [ {
         v: h.n_apps,
         f: D.num,
@@ -102,9 +118,17 @@
         f: function(v) {
           return String(Math.round(v));
         },
-        lab: 'dated states of one record',
+        lab: 'states of one record',
         tone: ''
       } ],
+      picto: function() {
+        var doc = function(x, fill, stroke) {
+          return '<path d="M' + x + ' 8h26l10 10v40h-36z" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.4"/><path d="M' + (x + 26) + ' 8v10h10" fill="none" stroke="' + stroke + '" stroke-width="1.4"/>' + [ 24, 34, 44 ].map(function(y) {
+            return '<line x1="' + (x + 7) + '" y1="' + y + '" x2="' + (x + 29) + '" y2="' + y + '" stroke="' + stroke + '" stroke-width="1.2" stroke-linecap="round"/>';
+          }).join('');
+        };
+        return svg(doc(40, '#fff', P.earlier) + doc(164, P.tintCurrent, P.current) + arrow(84, 34, 156, 34, P.charcoal) + txt(58, 68, 'as published', P.earlier, 'middle') + txt(182, 68, 'today', P.current, 'middle'));
+      },
       targets: function(m, i, u) {
         var p = self.plot, cols = 24, rows = 18;
         var cw = (p.x1 - p.x0) / cols, ch = (p.y1 - p.y0) / rows;
@@ -129,11 +153,10 @@
           alpha: al
         });
         var k = Math.max(0, Math.min(1, (u - .35) / .35));
-        D.text(ctx, 'today', p.x1 - 76, p.y0 - 12, {
+        D.text(ctx, 'today', p.x0 + 96, p.y0 - 12, {
           color: P.current,
           size: 12,
           weight: '600',
-          align: 'right',
           alpha: al * k
         });
         D.text(ctx, 'same applications, same outcome, same rule', (p.x0 + p.x1) / 2, p.y1 + 18, {
@@ -144,23 +167,26 @@
       }
     }, {
       title: 'The same gap, read twice',
-      lede: 'The grant gap between applications with five or more new code pairs and none. Neither level carries an interval; what the design identifies is the distance between them, +' + D.dec(h.vintage_all) + ' ' + D.ci(h.vintage_all_ci) + '.',
       cells: [ {
         v: h.gap_published,
         f: D.pp,
-        lab: 'record as published, pp',
+        lab: 'as published, pp',
         tone: 'earlier'
       }, {
         v: h.gap_today,
         f: D.pp,
-        lab: 'record today, pp',
+        lab: 'today, pp',
         tone: 'current'
       }, {
-        v: h.n_apps,
-        f: D.num,
-        lab: 'applications',
+        v: h.vintage_all,
+        f: D.pp,
+        lab: 'difference, pp',
         tone: ''
       } ],
+      picto: function() {
+        var x = D.scale(-1.5, 4.5, 14, 226);
+        return svg('<line x1="14" y1="40" x2="226" y2="40" stroke="' + P.spine + '"/>' + '<line x1="' + x(0) + '" y1="24" x2="' + x(0) + '" y2="56" stroke="' + P.spine + '" stroke-width="1.2"/>' + txt(x(0), 68, '0', P.charcoal, 'middle') + arrow(x(h.gap_published) + 8, 40, x(h.gap_today) - 8, 40, P.charcoal) + '<circle cx="' + x(h.gap_published) + '" cy="40" r="5.5" fill="#fff" stroke="' + P.earlier + '" stroke-width="2"/>' + '<circle cx="' + x(h.gap_today) + '" cy="40" r="5.5" fill="' + P.current + '"/>' + txt(x(h.gap_published), 22, D.pp(h.gap_published), P.earlier, 'middle') + txt(x(h.gap_today), 22, D.pp(h.gap_today), P.current, 'middle') + txt((x(h.gap_published) + x(h.gap_today)) / 2, 56, D.pp(h.vintage_all), P.charcoal, 'middle'));
+      },
       x: function() {
         return D.scale(-1.5, 4.5, self.plot.x0, self.plot.x1);
       },
@@ -181,7 +207,7 @@
         var p = self.plot, x = this.x();
         D.axisX(ctx, x, p.y0, p.y1, D.niceTicks(-1, 4, 6), function(t) {
           return D.pp(t, 0).replace('+0', '0');
-        }, self.narrow() ? 'grant gap, pp' : 'grant gap, five or more new pairs against none, percentage points');
+        }, self.narrow() ? 'grant gap, pp' : 'grant gap, 5+ new pairs against none, pp');
         D.vline(ctx, x(0), p.y0, p.y1, P.spine, 1.2);
         var cy = (p.y0 + p.y1) / 2, R = Math.min((p.y1 - p.y0) * .36, 78);
         var k = M.ease(Math.max(0, Math.min(1, (u - .28) / .42)));
@@ -212,7 +238,6 @@
       }
     }, {
       title: 'Vintage or the counting rule',
-      lede: 'The two conventional measures differ in vintage and in the kinds of code they count. Of their contrast, a Shapley decomposition gives the vintage ' + D.pp(h.shapley_vintage) + ' and the counting rule ' + D.pp(h.shapley_type) + ' (' + D.pval(h.shapley_type_p) + '). Outcome-blind revision would move the gap by ' + D.pp(h.null_all) + '; the observed movement exceeds it by ' + D.pp(h.excess_all) + '.',
       cells: [ {
         v: h.contrast,
         f: D.pp,
@@ -221,24 +246,18 @@
       }, {
         v: h.shapley_vintage,
         f: D.pp,
-        lab: 'vintage',
+        lab: 'vintage, pp',
         tone: 'current'
       }, {
         v: h.shapley_type,
         f: D.pp,
-        lab: 'code type',
+        lab: 'code type, pp',
         tone: 'killed'
-      }, {
-        v: h.null_all,
-        f: D.pp,
-        lab: 'outcome-blind null',
-        tone: ''
-      }, {
-        v: h.excess_all,
-        f: D.pp,
-        lab: 'excess over the null',
-        tone: ''
       } ],
+      picto: function() {
+        var x = D.scale(0, h.contrast, 14, 226);
+        return svg('<rect x="' + x(0) + '" y="22" width="' + (x(h.shapley_vintage) - x(0)) + '" height="20" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + '<rect x="' + x(h.shapley_vintage) + '" y="22" width="' + (x(h.contrast) - x(h.shapley_vintage)) + '" height="20" fill="' + P.tintNeutral + '" stroke="' + P.charcoal + '" stroke-width="1.2"/>' + txt(x(h.shapley_vintage / 2), 32, 'vintage ' + D.pp(h.shapley_vintage), '#000', 'middle') + txt(x(h.contrast), 55, 'code type ' + D.pp(h.shapley_type), P.charcoal, 'end') + '<line x1="' + x(h.null_all) + '" y1="46" x2="' + x(h.null_all) + '" y2="58" stroke="' + P.charcoal + '" stroke-width="1.4"/>' + txt(x(h.null_all) + 5, 55, 'outcome-blind null ' + D.pp(h.null_all), P.charcoal, 'start') + txt(x(h.contrast / 2), 15, 'contrast ' + D.pp(h.contrast), P.charcoal, 'middle'));
+      },
       x: function() {
         return D.scale(-.4, 5.2, self.plot.x0, self.plot.x1);
       },
@@ -294,7 +313,7 @@
           D.hline(ctx, y2 + 14, x(h.null_all), x(h.vintage_all), P.charcoal, 1);
           D.vline(ctx, x(h.null_all), y2 + 10, y2 + 18, P.charcoal, 1);
           D.vline(ctx, x(h.vintage_all), y2 + 10, y2 + 18, P.charcoal, 1);
-          D.text(ctx, self.narrow() ? 'excess ' + D.pp(h.excess_all) + ' over the null' : 'excess ' + D.pp(h.excess_all) + ' over the null, type-matched vintage difference ' + D.pp(h.vintage_all), (x(h.null_all) + x(h.vintage_all)) / 2, y2 + 27, {
+          D.text(ctx, self.narrow() ? 'excess ' + D.pp(h.excess_all) + ' over the null' : 'excess over the null ' + D.pp(h.excess_all) + ', vintage difference ' + D.pp(h.vintage_all), (x(h.null_all) + x(h.vintage_all)) / 2, y2 + 27, {
             size: 11,
             align: 'center'
           });
@@ -303,11 +322,10 @@
       }
     }, {
       title: 'The decisive test failed',
-      lede: 'Information that provably entered the record after the decision is related to the decision, ' + D.pp(h.k1_beta) + 'pp on a base of ' + D.dec(h.k1_base) + '%, but its 90% interval lies inside the equivalence band fixed before the tests: a kill by equivalence. On ' + D.num(h.grant_n) + ' granted records, ' + D.pct(h.share_at_grant) + ' of the change is already present at the grant.',
       cells: [ {
         v: h.k1_beta,
         f: D.pp,
-        lab: 'post-decision code, granted minus never granted, pp',
+        lab: 'post-decision code gap, pp',
         tone: 'killed'
       }, {
         v: h.k1_base,
@@ -319,9 +337,14 @@
       }, {
         v: h.share_at_grant,
         f: D.pct,
-        lab: 'of a granted record’s change present at the grant',
+        lab: 'of change at grant',
         tone: ''
       } ],
+      picto: function() {
+        var x = D.scale(-1.6, 1.6, 14, 176);
+        var xs = D.scale(0, 1, 14, 226);
+        return svg(band(x(-h.k1_band), x(h.k1_band), 8, 30) + '<line x1="' + x(0) + '" y1="6" x2="' + x(0) + '" y2="32" stroke="' + P.spine + '" stroke-width="1.2"/>' + '<line x1="' + x(h.k1_ci90[0]) + '" y1="19" x2="' + x(h.k1_ci90[1]) + '" y2="19" stroke="' + P.charcoal + '" stroke-width="2.4"/>' + '<circle cx="' + x(h.k1_beta) + '" cy="19" r="4" fill="' + P.charcoal + '"/>' + chip(186, 10, 'Kill', P.tintNeutral) + '<rect x="' + xs(0) + '" y="44" width="' + (xs(h.share_at_grant) - xs(0)) + '" height="18" fill="' + P.tintNeutral + '" stroke="' + P.charcoal + '" stroke-width="1.2"/>' + '<rect x="' + xs(h.share_at_grant) + '" y="44" width="' + (xs(1) - xs(h.share_at_grant)) + '" height="18" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + txt(xs(h.share_at_grant / 2), 53, D.pct(h.share_at_grant) + ' at grant', '#000', 'middle') + txt(xs((1 + h.share_at_grant) / 2), 53, 'after', '#000', 'middle'));
+      },
       x: function() {
         return D.scale(-1.65, 1.65, self.plot.x0, self.plot.x1);
       },
@@ -412,23 +435,29 @@
       }
     }, {
       title: 'The channel that survives',
-      lede: 'Among ' + D.num(h.k2b_n) + ' granted applications, carrying a symbol introduced after the five-year citation window closed rises by ' + D.pp(h.k2b_beta) + 'pp per standard deviation of forward citations, which accrued before the symbol existed. It is the only channel that supports the reconstructive reading; revision after the grant shows nothing on market value (' + D.pp(h.k2c_beta) + 'pp, killed).',
       cells: [ {
         v: h.k2b_beta,
         f: D.pp,
-        lab: 'pp per SD of later citations',
+        lab: 'pp per SD, citations',
         tone: 'survives'
+      }, {
+        v: h.k2c_beta,
+        f: D.pp,
+        lab: 'pp per SD, market value',
+        tone: 'killed'
       }, {
         v: h.k2b_n,
         f: D.num,
         lab: 'granted applications',
         tone: ''
-      }, {
-        v: h.k2c_beta,
-        f: D.pp,
-        lab: 'pp per SD of market value, killed',
-        tone: 'killed'
       } ],
+      picto: function() {
+        var x = D.scale(-2.8, 2.8, 66, 176);
+        var row = function(y, beta, ci, bandw, col, label, chipTxt, chipFill) {
+          return band(x(-bandw), x(bandw), y - 11, y + 11) + '<line x1="' + x(0) + '" y1="' + (y - 13) + '" x2="' + x(0) + '" y2="' + (y + 13) + '" stroke="' + P.spine + '" stroke-width="1.2"/>' + '<line x1="' + x(ci[0]) + '" y1="' + y + '" x2="' + x(ci[1]) + '" y2="' + y + '" stroke="' + col + '" stroke-width="2.4"/>' + '<circle cx="' + x(beta) + '" cy="' + y + '" r="4" fill="' + col + '"/>' + txt(60, y, label, P.charcoal, 'end') + chip(186, y - 9, chipTxt, chipFill);
+        };
+        return svg(row(19, h.k2b_beta, h.k2b_ci95, h.k2b_band, P.survives, 'citations', 'Support', P.tintSurvives) + row(53, h.k2c_beta, h.k2c_ci95, h.k2c_band, P.killed, 'market value', 'Kill', P.tintNeutral));
+      },
       x: function() {
         return D.scale(-2.8, 2.8, self.plot.x0, self.plot.x1);
       },
@@ -460,7 +489,7 @@
         });
         D.vline(ctx, x(0), p.y0 - 8, base + 6, P.spine, 1.2);
         D.hline(ctx, base + 1, x(h.k2b_ci95[0]), x(h.k2b_ci95[1]), P.survives, 3);
-        D.text(ctx, D.pp(h.k2b_beta) + ' ' + D.ci(h.k2b_ci95) + (self.narrow() ? ' per SD, supported' : ' per SD of forward citations, supported'), self.narrow() ? (p.x0 + p.x1) / 2 : x(h.k2b_beta), base + 24, {
+        D.text(ctx, D.pp(h.k2b_beta) + ' ' + D.ci(h.k2b_ci95) + ' per SD, supported', self.narrow() ? (p.x0 + p.x1) / 2 : x(h.k2b_beta), base + 24, {
           size: 12,
           weight: '600',
           align: 'center',
@@ -487,28 +516,27 @@
       }
     }, {
       title: '432 specifications, one estimate',
-      lede: 'The same quantity under every defensible combination of six choices, drawn from ' + D.num(this.mv.population) + ' published applications: ' + D.pp(h.spec_min) + 'pp to ' + D.pp(h.spec_max) + 'pp, median ' + D.pp(h.spec_median) + 'pp. ' + h.spec_below + ' intervals lie below zero, ' + h.spec_span + ' span it and ' + h.spec_above + ' lie above it, none of those reading novelty from the record as published.',
       cells: [ {
-        v: h.spec_n,
-        f: D.num,
-        lab: 'specifications',
-        tone: ''
-      }, {
         v: h.spec_min,
         f: D.pp,
         lab: 'lowest, pp',
-        tone: ''
-      }, {
-        v: h.spec_max,
-        f: D.pp,
-        lab: 'highest, pp',
         tone: ''
       }, {
         v: h.spec_median,
         f: D.pp,
         lab: 'median, pp',
         tone: ''
+      }, {
+        v: h.spec_max,
+        f: D.pp,
+        lab: 'highest, pp',
+        tone: ''
       } ],
+      picto: function() {
+        var xs = D.scale(0, h.spec_n, 14, 226);
+        var a = h.spec_below, b = a + h.spec_span, c = b + h.spec_above;
+        return svg('<rect x="' + xs(0) + '" y="22" width="' + (xs(a) - xs(0)) + '" height="20" fill="' + P.tintEarlier + '" stroke="' + P.earlier + '" stroke-width="1.2"/>' + '<rect x="' + xs(a) + '" y="22" width="' + (xs(b) - xs(a)) + '" height="20" fill="' + P.faint + '" stroke="' + P.spine + '" stroke-width="1.2"/>' + '<rect x="' + xs(b) + '" y="22" width="' + (xs(c) - xs(b)) + '" height="20" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + txt(xs(a / 2), 32, String(h.spec_below), '#000', 'middle') + txt(xs((a + b) / 2), 32, String(h.spec_span), '#000', 'middle') + txt(xs((b + c) / 2), 32, String(h.spec_above), '#000', 'middle') + txt(xs(a / 2), 56, 'below zero', P.earlier, 'middle') + txt(xs((a + b) / 2), 56, 'span zero', P.charcoal, 'middle') + txt(xs((b + c) / 2), 56, 'above zero', P.current, 'middle') + txt(120, 12, D.num(h.spec_n) + ' intervals', P.charcoal, 'middle'));
+      },
       y: function() {
         return D.scale(-7.5, 15.5, self.plot.y1, self.plot.y0);
       },
@@ -539,7 +567,7 @@
         D.text(ctx, 'estimated grant gap, pp', p.x0 - 40, p.y0 - 12, {
           size: 11
         });
-        var lx = self.narrow() ? p.x0 + 6 : p.x1 - 240, ly = self.narrow() ? p.y0 + 12 : p.y0 - 12;
+        var lx = p.x0 + 6, ly = p.y0 + 12;
         D.dot(ctx, lx, ly, 3.5, P.current);
         D.text(ctx, 'record today', lx + 7, ly, {
           size: 11,
@@ -553,7 +581,7 @@
           weight: '600'
         });
         var k2 = Math.max(0, Math.min(1, (u - .5) / .3));
-        if (!self.narrow()) D.text(ctx, h.spec_below + ' intervals below zero, ' + h.spec_span + ' span zero, ' + h.spec_above + ' above zero', p.x1 - 4, p.y1 - 14, {
+        if (!self.narrow()) D.text(ctx, h.spec_below + ' below zero, ' + h.spec_span + ' span, ' + h.spec_above + ' above', p.x1 - 4, p.y1 - 14, {
           size: 11.5,
           align: 'right',
           alpha: al * k2
@@ -563,7 +591,7 @@
   };
   Hero.prototype.buildReadout = function() {
     var html = '';
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < 3; i++) {
       html += '<div class="cell" id="ro-c' + i + '"><div class="num" id="ro-n' + i + '"></div><div class="lab" id="ro-l' + i + '"></div></div>';
     }
     this.els.readout.innerHTML = html;
@@ -572,6 +600,8 @@
     this.els.steps.innerHTML = steps;
     Array.prototype.forEach.call(this.els.steps.querySelectorAll('button'), function(b) {
       b.addEventListener('click', function() {
+        if (!self.tour) return;
+        self.tour.pause();
         self.tour.go(Number(b.dataset.i));
       });
     });
@@ -580,8 +610,8 @@
     var st = this.stages[this.stage];
     if (!document.getElementById('ro-c0')) return;
     this.els.title.textContent = st.title;
-    this.els.lede.textContent = st.lede;
-    for (var i = 0; i < 5; i++) {
+    this.els.picto.innerHTML = st.picto ? st.picto() : '';
+    for (var i = 0; i < 3; i++) {
       var cell = document.getElementById('ro-c' + i), n = document.getElementById('ro-n' + i), l = document.getElementById('ro-l' + i);
       var c = st.cells[i];
       if (!c) {
@@ -591,25 +621,29 @@
       cell.style.display = '';
       n.className = 'num ' + (c.tone || '');
       l.textContent = c.lab;
-      M.countTo(n, c.v, c.f, 900);
+      M.countTo(n, c.v, c.f, 900 / this.speed());
     }
     var self = this;
     Array.prototype.forEach.call(this.els.steps.querySelectorAll('button'), function(b) {
       b.className = Number(b.dataset.i) === self.stage ? 'on' : '';
     });
   };
+  Hero.prototype.speed = function() {
+    return this.tour ? this.tour.speed() : M.reduced ? 1 : 2.5;
+  };
   Hero.prototype.setStage = function(i) {
     this.stage = i;
-    this.enteredAt = performance.now();
-    this.u = 0;
+    this.enteredAt = M.now();
+    this.u = M.reduced ? 1 : 0;
     this.readout();
   };
   Hero.prototype.draw = function(now, dt) {
     var box = this.box, ctx = box.ctx, st = this.stages[this.stage];
     ctx.clearRect(0, 0, box.w, box.h);
+    var sp = this.speed();
     var since = now - this.enteredAt;
-    var al = Math.min(1, since / 500);
-    var k = M.reduced || this.first ? 1 : 1 - Math.exp(-dt / 170);
+    var al = M.reduced ? 1 : Math.min(1, since * sp / 500);
+    var k = M.reduced || this.first ? 1 : 1 - Math.exp(-dt * sp / 170);
     var i, m;
     for (i = 0; i < N; i++) {
       m = this.marks[i];
@@ -662,34 +696,40 @@
     return '<span class="num">' + D.pp(row[this.iEst]) + 'pp</span> [' + D.pp(row[cols.indexOf('lo')]) + ', ' + D.pp(row[cols.indexOf('hi')]) + ']<br>' + parts.join('; ') + '<br>n ' + D.num(row[cols.indexOf('n')]) + ', rank ' + (best + 1) + ' of ' + N;
   };
   Hero.prototype.start = function() {
-    var self = this, last = null;
+    var self = this;
     this.els.boot.hidden = true;
     this.tour = global.Tour.make({
       steps: this.stages.length,
       dwell: 7600,
+      stage: this.els.stage,
+      ctl: this.els.ctl,
       onStep: function(i) {
         self.setStage(i);
       },
-      onProgress: function(p, elapsed) {
-        self.els.prog.style.width = p * 100 + '%';
+      onProgress: function(p) {
         self.u = M.reduced ? 1 : p;
-      },
-      onPause: function() {
-        self.els.play.textContent = 'Play';
-      },
-      onResume: function() {
-        self.els.play.textContent = 'Pause';
       }
     });
     if (M.reduced) this.u = 1;
-    function loop(t) {
-      if (last === null) last = t;
-      var dt = Math.min(64, t - last);
-      last = t;
-      self.draw(t, dt);
-      M.frame(loop);
+    this.stopDraw = null;
+  };
+  Hero.prototype.enter = function() {
+    var self = this;
+    if (!this.tour) return;
+    this.tour.start();
+    if (!this.stopDraw) {
+      this.first = true;
+      this.stopDraw = M.run(function(t, dt) {
+        self.draw(t, Math.min(64, dt));
+      });
     }
-    M.frame(loop);
+  };
+  Hero.prototype.leave = function() {
+    if (this.tour) this.tour.stop();
+    if (this.stopDraw) {
+      this.stopDraw();
+      this.stopDraw = null;
+    }
   };
   global.Hero = Hero;
 })(window);

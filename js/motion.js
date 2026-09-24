@@ -1,32 +1,80 @@
 (function(global) {
   'use strict';
   var reduced = !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  function frame(cb) {
-    if (global.requestAnimationFrame) {
-      var done = false, id, t;
-      id = global.requestAnimationFrame(function(now) {
-        if (done) return;
-        done = true;
-        clearTimeout(t);
-        cb(now);
-      });
-      t = setTimeout(function() {
-        if (done) return;
-        done = true;
-        global.cancelAnimationFrame(id);
-        cb(performance.now());
-      }, 120);
-      return function() {
-        done = true;
-        global.cancelAnimationFrame(id);
-        clearTimeout(t);
-      };
-    }
-    var h = setTimeout(function() {
-      cb(Date.now());
+  var raf = global.requestAnimationFrame ? function(cb) {
+    return global.requestAnimationFrame(cb);
+  } : function(cb) {
+    return setTimeout(function() {
+      cb(now());
     }, 16);
+  };
+  var caf = global.cancelAnimationFrame ? function(id) {
+    global.cancelAnimationFrame(id);
+  } : function(id) {
+    clearTimeout(id);
+  };
+  function now() {
+    return global.performance && global.performance.now ? global.performance.now() : Date.now();
+  }
+  function frame(cb) {
+    var done = false, id, t;
+    id = raf(function(ts) {
+      if (done) return;
+      done = true;
+      clearTimeout(t);
+      cb(ts);
+    });
+    t = setTimeout(function() {
+      if (done) return;
+      done = true;
+      caf(id);
+      cb(now());
+    }, 120);
     return function() {
-      clearTimeout(h);
+      done = true;
+      caf(id);
+      clearTimeout(t);
+    };
+  }
+  var subs = [];
+  var loopStop = null;
+  var loopLast = null;
+  var looping = false;
+  function loop(ts) {
+    loopStop = null;
+    if (loopLast === null) loopLast = ts;
+    var dt = Math.max(0, Math.min(100, ts - loopLast));
+    loopLast = ts;
+    var list = subs.slice();
+    for (var i = 0; i < list.length; i++) {
+      if (subs.indexOf(list[i]) < 0) continue;
+      try {
+        list[i](ts, dt);
+      } catch (e) {
+        if (global.console) global.console.error(e);
+      }
+    }
+    if (subs.length) loopStop = frame(loop); else {
+      looping = false;
+      loopLast = null;
+    }
+  }
+  function run(fn) {
+    if (subs.indexOf(fn) < 0) subs.push(fn);
+    if (!looping) {
+      looping = true;
+      loopLast = null;
+      loopStop = frame(loop);
+    }
+    return function() {
+      var k = subs.indexOf(fn);
+      if (k >= 0) subs.splice(k, 1);
+      if (!subs.length && loopStop) {
+        loopStop();
+        loopStop = null;
+        looping = false;
+        loopLast = null;
+      }
     };
   }
   function ease(t) {
@@ -43,15 +91,15 @@
       running[key]();
       running[key] = null;
     }
-    if (reduced || from === value) {
+    if (reduced || from === value || !(ms > 0)) {
       el.textContent = fmt(value);
       return;
     }
-    var dur = ms || 700, t0 = null, cancel = null;
+    var dur = ms, t0 = null, cancel = null;
     function step(t) {
       if (t0 === null) t0 = t;
       var k = Math.min(1, (t - t0) / dur);
-      el.textContent = fmt(from + (value - from) * ease(k));
+      el.textContent = fmt(k >= 1 ? value : from + (value - from) * ease(k));
       if (k < 1) cancel = frame(step); else running[key] = null;
     }
     cancel = frame(step);
@@ -60,44 +108,12 @@
       el.textContent = fmt(value);
     };
   }
-  var tours = [];
-  var paused = false;
-  function register(t) {
-    tours.push(t);
-    return t;
-  }
-  function pauseAll() {
-    if (paused) return;
-    paused = true;
-    tours.forEach(function(t) {
-      t.pause();
-    });
-  }
-  function resumeAll() {
-    paused = false;
-    tours.forEach(function(t) {
-      t.resume();
-    });
-  }
-  function isPaused() {
-    return paused;
-  }
-  [ 'pointerdown', 'keydown', 'wheel', 'touchstart' ].forEach(function(ev) {
-    global.addEventListener(ev, function() {
-      pauseAll();
-    }, {
-      passive: true,
-      capture: true
-    });
-  });
   global.M = {
     frame: frame,
+    run: run,
+    now: now,
     ease: ease,
     countTo: countTo,
-    reduced: reduced,
-    register: register,
-    pauseAll: pauseAll,
-    resumeAll: resumeAll,
-    isPaused: isPaused
+    reduced: reduced
   };
 })(window);

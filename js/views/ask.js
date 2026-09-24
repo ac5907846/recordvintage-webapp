@@ -67,6 +67,12 @@
     model: null,
     loading: null,
     mode: 'question',
+    enter: function() {
+      if (global.Mascot) global.Mascot.enter();
+    },
+    leave: function() {
+      if (global.Mascot) global.Mascot.leave();
+    },
     init: function(data) {
       this.data = data;
       this.dim = data.dim;
@@ -99,6 +105,7 @@
       });
       this.wire();
       this.status();
+      if (global.Mascot) global.Mascot.init(document.getElementById('mascot'));
     },
     wire: function() {
       var self = this;
@@ -304,6 +311,7 @@
       });
       html += '<p class="fine">' + (how === 'embedding' ? 'Passages ranked by the mean of two cosine similarities, question to passage and question to the closest sentence within it; that sentence is highlighted and the number is the mean.' : 'Passages ranked by shared words weighted by their rarity across the paper; the highlighted sentence shares most with the question.') + ' Section numbers refer to the article.</p>';
       out.innerHTML = html;
+      if (global.Mascot) global.Mascot.results();
     },
     record: function(text) {
       var self = this, d = this.data;
@@ -356,6 +364,7 @@
         });
         html += '<p class="fine">Each ask is scored by the highest cosine similarity between the description, whole or sentence by sentence, and the sentences of the article that state it; the number is that similarity. Asks within .08 of the top score are shown in full, the others greyed. The quoted text is the article’s own.</p>';
         out.innerHTML = html;
+        if (global.Mascot) global.Mascot.results();
       }).catch(function(e) {
         out.innerHTML = '<p class="fine">' + esc(String(e && e.message ? e.message : e)) + '</p>';
       });

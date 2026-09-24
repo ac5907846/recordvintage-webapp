@@ -1,11 +1,23 @@
 (function(global) {
   'use strict';
   var D = global.D, M = global.M, P = D.P;
+  var VIEWS = [ null, 'published', 'current' ];
   var Multiverse = {
     data: null,
     active: null,
     colour: 'vintage',
     pts: [],
+    tour: null,
+    forkBtns: null,
+    speed: function() {
+      return this.tour ? this.tour.speed() : 1;
+    },
+    enter: function() {
+      if (this.tour) this.tour.start();
+    },
+    leave: function() {
+      if (this.tour) this.tour.stop();
+    },
     init: function(data) {
       this.data = data;
       var self = this;
@@ -31,10 +43,19 @@
         mode: 'one',
         onChange: function(s) {
           self.colour = s.vintage ? 'vintage' : 'none';
+          if (self.tour) self.tour.pause();
           self.render();
         }
       });
-      this.render();
+      this.tour = global.Tour.make({
+        steps: VIEWS.length,
+        dwell: 6e3,
+        stage: document.getElementById('mvstage'),
+        ctl: document.getElementById('mvctl'),
+        onStep: function(i) {
+          self.showVintage(VIEWS[i]);
+        }
+      });
       this.renderLeverage();
       global.addEventListener('resize', D.debounce(function() {
         self.render();
@@ -45,10 +66,27 @@
       });
       document.getElementById('mvnote').textContent = 'Specifications ranked by estimate, so monotone by construction; faint bars are 95% cluster-robust intervals on technology field. Leverage is the largest median absolute change from swapping two levels of one choice with all else fixed. Specifications are nested and share documents, so the interval counts are not a vote. Neither marked specification is presented as correct. Figure 6 of the article, ' + D.num(data.population) + ' published applications.';
     },
+    showVintage: function(which) {
+      var d = this.data, self = this;
+      d.levels.measure.forEach(function(v) {
+        self.active.measure[v] = which === null || d.vintage_of_measure[v] === which;
+      });
+      this.paintFork('measure');
+      this.render();
+    },
+    paintFork: function(f) {
+      var d = this.data, self = this;
+      d.levels[f].forEach(function(v) {
+        var b = self.forkBtns[f][v];
+        b.className = 'key ' + (self.active[f][v] ? 'on ' + b.dataset.tone : 'off');
+      });
+    },
     buildControls: function() {
       var bar = document.getElementById('forkbar'), self = this, d = this.data;
       bar.innerHTML = '';
+      this.forkBtns = {};
       d.forks.forEach(function(f) {
+        self.forkBtns[f] = {};
         var g = document.createElement('div');
         g.className = 'forkgroup';
         var n = document.createElement('div');
@@ -60,10 +98,13 @@
           b.type = 'button';
           var tone = f === 'measure' ? d.vintage_of_measure[v] === 'current' ? 'current' : '' : 'neutral';
           b.className = 'key on ' + tone;
+          b.dataset.tone = tone;
           b.textContent = d.labels[f][v];
+          self.forkBtns[f][v] = b;
           b.addEventListener('click', function() {
             self.active[f][v] = !self.active[f][v];
-            b.className = 'key ' + (self.active[f][v] ? 'on ' + tone : 'off');
+            if (self.tour) self.tour.pause();
+            self.paintFork(f);
             self.render();
           });
           g.appendChild(b);
@@ -111,7 +152,7 @@
       this.pts = [];
       this.readout(rows);
       if (!rows.length) {
-        D.text(ctx, 'No specification takes every choice that is switched on.', w / 2, h / 2, {
+        D.text(ctx, 'No specification matches', w / 2, h / 2, {
           align: 'center',
           color: P.charcoal
         });
@@ -201,8 +242,9 @@
         return p.lo > 0;
       }).length;
       var span = rows.length - below - above;
+      var ms = 700 / this.speed();
       function set(id, v, f, lab) {
-        M.countTo(document.getElementById(id), v, f);
+        M.countTo(document.getElementById(id), v, f, ms);
         document.getElementById(id + 'l').textContent = lab;
       }
       set('mv-n', rows.length, D.num, 'specifications match');

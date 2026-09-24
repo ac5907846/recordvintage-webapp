@@ -87,8 +87,9 @@ animation frame.
 ```
 index.html            the shell, the tab bar, one section per view
 css/app.css           the palette shared with the paper’s figures, and the layout
-js/motion.js          animation frame with a timeout fallback, count-ups, the global pause
-js/tour.js            the stage clock the hero registers with
+js/motion.js          one animation loop with a timeout fallback, count-ups that carry
+js/tour.js            the stage clock behind every cycling figure: fast first cycle, play x1, x2, pause
+js/mascot.js          the small animated character beside the question box on the Ask tab
 js/draw.js            canvas helpers, the palette, number formats, hover readouts, button keys
 js/hero.js            the landing picture, six stages of morphing marks
 js/boot.js            data loading and the hash router
@@ -102,5 +103,9 @@ build_ask.py          writes data/ask.json from the manuscript
 check_ask.js          the embedding and verbatim check for the Ask tab
 ```
 
-Any pointer or key press pauses the autoplay; the Play button resumes it. `prefers-reduced-motion`
-jumps straight to each stage’s final state.
+Every figure with motion (the landing picture, Record, both Vintage lab blocks, the K1 variants on
+Kill tests, Multiverse) starts by itself when its tab opens. The first cycle runs at 2.5 times normal
+speed, later cycles at normal speed. A click or touch anywhere on a figure pauses that figure only; the
+glyph button in its corner cycles play x1, play x2, pause, and is the only way to resume. Count-ups carry
+from the previous value at every speed. `prefers-reduced-motion` jumps straight to each stage’s final
+state, runs no fast cycle and keeps the Ask character still.

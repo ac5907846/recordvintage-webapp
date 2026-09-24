@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The record keeps being written</title>
 <meta name="description" content="Companion to a study of classification vintage and the measurement of knowledge recombination: one record, two of its own dates, the same 833,267 applications.">
-<link rel="preload" as="fetch" href="data/headline.json?v=2" crossorigin>
-<link rel="preload" as="fetch" href="data/multiverse.json?v=2" crossorigin>
-<link rel="stylesheet" href="css/app.css?v=2">
+<link rel="preload" as="fetch" href="data/headline.json?v=5" crossorigin>
+<link rel="preload" as="fetch" href="data/multiverse.json?v=5" crossorigin>
+<link rel="stylesheet" href="css/app.css?v=5">
 </head>
 <body>
 
@@ -35,13 +35,12 @@
       <div class="herostage">
         <canvas id="herocanvas" aria-label="The argument of the paper in six pictures"></canvas>
         <div class="boot" id="heroboot"><span></span><span></span><span></span></div>
-        <button class="playpill" id="heroplay" type="button">Pause</button>
-        <div class="progress"><span id="heroprog"></span></div>
+        <div class="playctl" id="heroctl" role="group" aria-label="Playback"></div>
       </div>
       <div class="heroside">
         <div class="stagetitle" id="herotitle"></div>
         <div class="readout" id="heroreadout"></div>
-        <div class="lede" id="herolede"></div>
+        <div class="picto" id="heropicto"></div>
         <div class="steps" id="herosteps"></div>
       </div>
     </div>
@@ -50,10 +49,11 @@
   </section>
 
   <section class="panel" id="p-record" hidden>
-    <div class="block">
+    <div class="block stage" id="recordstage">
       <div class="blockhead">
         <h2>Three dated states of one record</h2>
         <div class="keys" id="recordkeys"></div>
+        <div class="playctl" id="recordctl" role="group" aria-label="Playback"></div>
       </div>
       <div class="chartwrap"><canvas id="recordcanvas" aria-label="Record timeline, two lanes"></canvas></div>
       <div class="readout small" id="recordreadout"></div>
@@ -62,9 +62,10 @@
   </section>
 
   <section class="panel" id="p-vintage" hidden>
-    <div class="block">
+    <div class="block stage" id="labstage">
       <div class="blockhead">
         <h2>Same applications, two states of the record</h2>
+        <div class="playctl" id="labctl" role="group" aria-label="Playback"></div>
       </div>
       <div class="labgrid">
         <div class="cellgrid" id="cellgrid"></div>
@@ -73,10 +74,11 @@
       <div class="chartwrap"><canvas id="labcanvas" aria-label="Grant gap under the selected code type"></canvas></div>
       <p class="fine" id="labnote"></p>
     </div>
-    <div class="block">
+    <div class="block stage" id="migstage">
       <div class="blockhead">
         <h2>Movement between novelty bins</h2>
         <div class="keys" id="migkeys"></div>
+        <div class="playctl" id="migctl" role="group" aria-label="Playback"></div>
       </div>
       <div class="chartwrap"><canvas id="migcanvas" aria-label="Bin migration between the two states of the record"></canvas></div>
       <p class="fine" id="mignote"></p>
@@ -91,10 +93,11 @@
       <div class="chartwrap"><canvas id="ledgercanvas" aria-label="Ledger of preregistered tests"></canvas></div>
       <p class="fine" id="ledgernote"></p>
     </div>
-    <div class="block">
+    <div class="block stage" id="variantstage">
       <div class="blockhead">
         <h2>The decisive test and its variants</h2>
         <div class="keys" id="variantkeys"></div>
+        <div class="playctl" id="variantctl" role="group" aria-label="Playback"></div>
       </div>
       <div class="chartwrap"><canvas id="variantcanvas" aria-label="K1 variants against the equivalence region"></canvas></div>
       <p class="fine" id="variantnote"></p>
@@ -102,10 +105,11 @@
   </section>
 
   <section class="panel" id="p-multiverse" hidden>
-    <div class="block">
+    <div class="block stage" id="mvstage">
       <div class="blockhead">
         <h2>432 specifications of the same estimate</h2>
         <div class="keys" id="mvcolour"></div>
+        <div class="playctl" id="mvctl" role="group" aria-label="Playback"></div>
       </div>
       <div class="forkbar" id="forkbar"></div>
       <div class="readout small" id="mvreadout"></div>
@@ -138,17 +142,32 @@
         <div class="askprogress" id="askprogress" hidden><span id="askbar"></span></div>
         <span class="fine" id="askstate"></span>
       </div>
-      <form class="askform" id="askqform">
-        <div class="askrow">
-          <input type="text" id="askqinput" autocomplete="off" spellcheck="false" aria-label="A question about the paper" placeholder="A question about the paper">
-          <button class="key" type="submit">Find</button>
+      <div class="askbody">
+        <svg class="mascot" id="mascot" viewBox="0 0 48 52" width="48" height="52" aria-hidden="true" focusable="false">
+          <g id="m-armL"><line x1="17" y1="32" x2="9" y2="43" stroke="#1b2a49" stroke-width="3.2" stroke-linecap="round"/></g>
+          <g id="m-armR"><line x1="31" y1="32" x2="39" y2="43" stroke="#1b2a49" stroke-width="3.2" stroke-linecap="round"/></g>
+          <g id="m-body"><rect x="15" y="28" width="18" height="20" rx="7" fill="#1b2a49"/></g>
+          <g id="m-card"><rect x="2.5" y="18" width="13" height="9.5" rx="1.5" fill="#D9EAD3" stroke="#1d6f7a" stroke-width="1"/><line x1="5" y1="21.2" x2="13.5" y2="21.2" stroke="#1d6f7a" stroke-width="1" stroke-linecap="round"/><line x1="5" y1="24.3" x2="11" y2="24.3" stroke="#1d6f7a" stroke-width="1" stroke-linecap="round"/></g>
+          <g id="m-head">
+            <circle cx="24" cy="16" r="11" fill="#D4EBF2" stroke="#1b2a49" stroke-width="1.8"/>
+            <g id="m-eyes"><circle cx="20" cy="15" r="1.7" fill="#1b2a49"/><circle cx="28" cy="15" r="1.7" fill="#1b2a49"/></g>
+            <path d="M20.5 20.5q3.5 2.6 7 0" fill="none" stroke="#1b2a49" stroke-width="1.4" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div class="askmain">
+          <form class="askform" id="askqform">
+            <div class="askrow">
+              <input type="text" id="askqinput" autocomplete="off" spellcheck="false" aria-label="A question about the paper" placeholder="A question about the paper">
+              <button class="key" type="submit">Find</button>
+            </div>
+          </form>
+          <form class="askform" id="askrform" hidden>
+            <textarea id="askrinput" rows="4" spellcheck="false" aria-label="A description of a classified record or taxonomy" placeholder="Describe a classified record or taxonomy: who keeps it, whether it is versioned, whether categories and assignments are dated, and on what schedule it is written."></textarea>
+            <div class="askrow"><button class="key" type="submit">Read</button></div>
+          </form>
+          <div class="askout" id="askout"></div>
         </div>
-      </form>
-      <form class="askform" id="askrform" hidden>
-        <textarea id="askrinput" rows="4" spellcheck="false" aria-label="A description of a classified record or taxonomy" placeholder="Describe a classified record or taxonomy: who keeps it, whether it is versioned, whether categories and assignments are dated, and on what schedule it is written."></textarea>
-        <div class="askrow"><button class="key" type="submit">Read</button></div>
-      </form>
-      <div class="askout" id="askout"></div>
+      </div>
     </div>
   </section>
 
@@ -164,18 +183,19 @@
 
 <footer class="foot"><span id="footnote"></span></footer>
 
-<script src="js/motion.js?v=2"></script>
-<script src="js/draw.js?v=2"></script>
-<script src="js/tour.js?v=2"></script>
-<script src="js/hero.js?v=2"></script>
-<script src="js/views/findings.js?v=2"></script>
-<script src="js/views/record.js?v=2"></script>
-<script src="js/views/vintage.js?v=2"></script>
-<script src="js/views/kill.js?v=2"></script>
-<script src="js/views/multiverse.js?v=2"></script>
-<script src="js/views/rule.js?v=2"></script>
-<script src="js/views/ask.js?v=2"></script>
-<script src="js/views/verify.js?v=2"></script>
-<script src="js/boot.js?v=2"></script>
+<script src="js/motion.js?v=5"></script>
+<script src="js/draw.js?v=5"></script>
+<script src="js/tour.js?v=5"></script>
+<script src="js/hero.js?v=5"></script>
+<script src="js/views/findings.js?v=5"></script>
+<script src="js/views/record.js?v=5"></script>
+<script src="js/views/vintage.js?v=5"></script>
+<script src="js/views/kill.js?v=5"></script>
+<script src="js/views/multiverse.js?v=5"></script>
+<script src="js/views/rule.js?v=5"></script>
+<script src="js/mascot.js?v=5"></script>
+<script src="js/views/ask.js?v=5"></script>
+<script src="js/views/verify.js?v=5"></script>
+<script src="js/boot.js?v=5"></script>
 </body>
 </html>

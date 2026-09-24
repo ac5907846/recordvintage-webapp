@@ -1,9 +1,10 @@
 (function(global) {
   'use strict';
   var D = global.D;
-  var VER = '?v=2';
+  var VER = '?v=5';
   var store = {};
   var built = {};
+  var current = null;
   var SUBTITLES = {
     findings: 'Classification vintage and the measurement of knowledge recombination',
     record: 'One record, written in instalments: as published, at the grant, today',
@@ -24,6 +25,16 @@
     ask: [ 'ask' ],
     verify: [ 'provenance', 'verify', 'headline', 'vintage', 'multiverse' ]
   };
+  function view(tab) {
+    return {
+      findings: global.HERO,
+      record: global.Record,
+      vintage: global.Lab,
+      kill: global.Kill,
+      multiverse: global.Multiverse,
+      ask: global.Ask
+    }[tab] || null;
+  }
   function get(name) {
     return fetch('data/' + name + '.json' + VER).then(function(r) {
       if (!r.ok) throw new Error(name + ': ' + r.status);
@@ -38,6 +49,11 @@
   }
   function show(tab) {
     if (!SUBTITLES[tab]) tab = 'findings';
+    if (current && current !== tab && built[current] === 2) {
+      var v = view(current);
+      if (v && v.leave) v.leave();
+    }
+    current = tab;
     Array.prototype.forEach.call(document.querySelectorAll('.panel'), function(p) {
       p.hidden = p.id !== 'p-' + tab;
     });
@@ -48,14 +64,21 @@
     global.scrollTo(0, 0);
     build(tab);
   }
+  function enter(tab) {
+    if (current !== tab || built[tab] !== 2) return;
+    var v = view(tab);
+    if (v && v.enter) v.enter();
+  }
   function build(tab) {
-    if (built[tab]) {
+    if (built[tab] === 2) {
       if (tab !== 'findings') global.dispatchEvent(new Event('resize'));
+      enter(tab);
       return;
     }
+    if (built[tab] === 1) return;
+    built[tab] = 1;
     Promise.all(NEEDS[tab].map(need)).then(function() {
-      if (built[tab]) return;
-      built[tab] = true;
+      if (built[tab] === 2) return;
       if (tab === 'findings') global.Findings.init(store.headline);
       if (tab === 'record') global.Record.init(store.record);
       if (tab === 'vintage') global.Lab.init(store.vintage);
@@ -70,6 +93,8 @@
         vintage: store.vintage,
         multiverse: store.multiverse
       });
+      built[tab] = 2;
+      enter(tab);
     }).catch(fail);
   }
   function fail(e) {
@@ -83,11 +108,11 @@
     document.getElementById('footnote').textContent = 'Companion to the article. Built from ' + D.num(h.n_apps) + ' first filings under two states of their own classification record and ' + D.num(h.spec_n) + ' specifications; every number on these pages is generated from the analysis result files by build_data.py and checked by check_numbers.js. The article carries the argument.';
     var hero = new global.Hero({
       canvas: document.getElementById('herocanvas'),
-      play: document.getElementById('heroplay'),
-      prog: document.getElementById('heroprog'),
+      stage: document.getElementById('hero'),
+      ctl: document.getElementById('heroctl'),
       title: document.getElementById('herotitle'),
       readout: document.getElementById('heroreadout'),
-      lede: document.getElementById('herolede'),
+      picto: document.getElementById('heropicto'),
       steps: document.getElementById('herosteps'),
       boot: document.getElementById('heroboot')
     }, store.headline, store.multiverse);

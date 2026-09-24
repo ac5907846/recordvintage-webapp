@@ -1,17 +1,33 @@
 (function(global) {
   'use strict';
   var D = global.D, M = global.M, P = D.P;
+  var CELLS = [ 'Pa', 'Ca', 'Pi', 'Ci' ];
+  var MIGS = [ 'all', 'inv' ];
   var Lab = {
     data: null,
-    vint: 'C',
+    vint: 'P',
     type: 'a',
     mig: 'all',
     cellHits: [],
+    tour: null,
+    migTour: null,
+    migKeys: null,
+    speed: function() {
+      return this.tour ? this.tour.speed() : 1;
+    },
+    enter: function() {
+      if (this.tour) this.tour.start();
+      if (this.migTour) this.migTour.start();
+    },
+    leave: function() {
+      if (this.tour) this.tour.stop();
+      if (this.migTour) this.migTour.stop();
+    },
     init: function(data) {
       this.data = data;
       var self = this;
       this.buildCells();
-      D.keys(document.getElementById('migkeys'), [ {
+      this.migKeys = D.keys(document.getElementById('migkeys'), [ {
         id: 'all',
         label: 'all code types',
         on: true,
@@ -23,13 +39,33 @@
         tone: 'neutral'
       } ], {
         mode: 'one',
-        onChange: function(s) {
-          self.mig = s.all ? 'all' : 'inv';
+        onChange: function(s, id) {
+          self.migTour.pause();
+          self.migTour.go(MIGS.indexOf(id));
+        }
+      });
+      this.tour = global.Tour.make({
+        steps: CELLS.length,
+        dwell: 5e3,
+        stage: document.getElementById('labstage'),
+        ctl: document.getElementById('labctl'),
+        onStep: function(i) {
+          self.vint = CELLS[i][0];
+          self.type = CELLS[i][1];
+          self.update();
+        }
+      });
+      this.migTour = global.Tour.make({
+        steps: MIGS.length,
+        dwell: 6e3,
+        stage: document.getElementById('migstage'),
+        ctl: document.getElementById('migctl'),
+        onStep: function(i) {
+          self.mig = MIGS[i];
+          self.migKeys.select(self.mig);
           self.renderMig();
         }
       });
-      this.update();
-      this.renderMig();
       global.addEventListener('resize', D.debounce(function() {
         self.renderChart();
         self.renderMig();
@@ -57,9 +93,8 @@
       grid.innerHTML = html;
       Array.prototype.forEach.call(grid.querySelectorAll('.cellbtn'), function(b) {
         b.addEventListener('click', function() {
-          self.vint = b.dataset.k[0];
-          self.type = b.dataset.k[1];
-          self.update();
+          self.tour.pause();
+          self.tour.go(CELLS.indexOf(b.dataset.k));
         });
       });
     },
@@ -103,7 +138,7 @@
         small: D.pval(nul.p),
         id: 'lab-x'
       }, {
-        k: 'code-type difference at this vintage, all minus inventional',
+        k: 'code-type difference, all minus inventional',
         v: D.pp(T.estimate),
         small: D.ci(T.ci95) + ', ' + D.pval(T.p),
         id: 'lab-t'
@@ -126,8 +161,9 @@
         'lab-t': T.estimate,
         'lab-ot': d.cells[otherT]
       };
+      var ms = 700 / this.speed();
       Object.keys(vals).forEach(function(id) {
-        M.countTo(document.getElementById(id), vals[id], D.pp);
+        M.countTo(document.getElementById(id), vals[id], D.pp, ms);
       });
       this.renderChart();
     },

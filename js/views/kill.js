@@ -15,15 +15,37 @@
     Exploratory: P.charcoal,
     Pass: P.survives
   };
+  var SORTS = [ 'order', 'estimate' ];
+  var SHORT = {
+    R0: 'Construction reproduces the published pipeline?',
+    D0: 'Vintage moves the gap, code type fixed?',
+    K3a: 'Vintage explains more than code type?',
+    K4: 'Excess rises with exposure to revision?',
+    K1: 'Post-decision information related to the decision?',
+    K2b: 'Late revision tracks later citations?',
+    K2c: 'Post-grant revision tracks market value?',
+    K5a: 'Unreclassifiable measure sides with published record?',
+    K6r: 'Unsuccessful records omitted as first carriers?',
+    K7b: 'Descendant zero novelty from own family documents?',
+    K7p: 'Inheritance larger under the current record?'
+  };
   var Kill = {
     data: null,
     rows: [],
     vrows: [],
     vsort: 'order',
+    tour: null,
+    keys: null,
+    enter: function() {
+      if (this.tour) this.tour.start();
+    },
+    leave: function() {
+      if (this.tour) this.tour.stop();
+    },
     init: function(data) {
       this.data = data;
       var self = this;
-      D.keys(document.getElementById('variantkeys'), [ {
+      this.keys = D.keys(document.getElementById('variantkeys'), [ {
         id: 'order',
         label: 'file order',
         on: true,
@@ -35,13 +57,23 @@
         tone: 'neutral'
       } ], {
         mode: 'one',
-        onChange: function(s) {
-          self.vsort = s.order ? 'order' : 'estimate';
-          self.renderVariants();
+        onChange: function(s, id) {
+          self.tour.pause();
+          self.tour.go(SORTS.indexOf(id));
         }
       });
       this.renderLedger();
-      this.renderVariants();
+      this.tour = global.Tour.make({
+        steps: SORTS.length,
+        dwell: 6e3,
+        stage: document.getElementById('variantstage'),
+        ctl: document.getElementById('variantctl'),
+        onStep: function(i) {
+          self.vsort = SORTS[i];
+          self.keys.select(self.vsort);
+          self.renderVariants();
+        }
+      });
       global.addEventListener('resize', D.debounce(function() {
         self.renderLedger();
         self.renderVariants();
@@ -80,7 +112,7 @@
           weight: '600'
         });
         self.chip(ctx, t.label, narrow ? 50 : 60, ytxt);
-        var lines = D.wrap(ctx, t.question, narrow ? w - 150 : qw, 11.5);
+        var lines = D.wrap(ctx, self.shortQ(t), narrow ? w - 150 : qw, 11.5);
         if (narrow) {
           lines.forEach(function(ln, j) {
             D.text(ctx, ln, 140, ytxt + j * 13, {
@@ -136,8 +168,8 @@
         });
       });
     },
-    shortQ: function(q) {
-      return q;
+    shortQ: function(t) {
+      return SHORT[t.id] || t.question;
     },
     chip: function(ctx, label, x, y) {
       var fills = {

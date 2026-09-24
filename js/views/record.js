@@ -1,14 +1,26 @@
 (function(global) {
   'use strict';
   var D = global.D, M = global.M, P = D.P;
+  var STEPS = [ 'new_pairs', 'codes' ];
   var Record = {
     data: null,
     metric: 'new_pairs',
     hits: [],
+    tour: null,
+    keys: null,
+    speed: function() {
+      return this.tour ? this.tour.speed() : 1;
+    },
+    enter: function() {
+      if (this.tour) this.tour.start();
+    },
+    leave: function() {
+      if (this.tour) this.tour.stop();
+    },
     init: function(data) {
       this.data = data;
       var self = this;
-      D.keys(document.getElementById('recordkeys'), [ {
+      this.keys = D.keys(document.getElementById('recordkeys'), [ {
         id: 'new_pairs',
         label: 'mean new pairs',
         on: true,
@@ -20,12 +32,22 @@
         tone: 'neutral'
       } ], {
         mode: 'one',
-        onChange: function(s) {
-          self.metric = s.new_pairs ? 'new_pairs' : 'codes';
+        onChange: function(s, id) {
+          self.tour.pause();
+          self.tour.go(STEPS.indexOf(id));
+        }
+      });
+      this.tour = global.Tour.make({
+        steps: STEPS.length,
+        dwell: 6e3,
+        stage: document.getElementById('recordstage'),
+        ctl: document.getElementById('recordctl'),
+        onStep: function(i) {
+          self.metric = STEPS[i];
+          self.keys.select(self.metric);
           self.render();
         }
       });
-      this.render();
       global.addEventListener('resize', D.debounce(function() {
         self.render();
       }));
@@ -178,15 +200,16 @@
       var f = function(x) {
         return D.dec(x, 2);
       };
-      M.countTo(document.getElementById('rec-a'), v[0], f);
-      document.getElementById('rec-al').textContent = (metric === 'new_pairs' ? 'new pairs' : 'codes') + ' at publication, granted';
-      M.countTo(document.getElementById('rec-b'), v[1], f);
+      var ms = 700 / this.speed();
+      M.countTo(document.getElementById('rec-a'), v[0], f, ms);
+      document.getElementById('rec-al').textContent = (metric === 'new_pairs' ? 'new pairs' : 'codes') + ' at publication';
+      M.countTo(document.getElementById('rec-b'), v[1], f, ms);
       document.getElementById('rec-bl').textContent = 'at the grant';
-      M.countTo(document.getElementById('rec-c'), v[2], f);
+      M.countTo(document.getElementById('rec-c'), v[2], f, ms);
       document.getElementById('rec-cl').textContent = 'today';
       var share = (v[1] - v[0]) / (v[2] - v[0]);
-      M.countTo(document.getElementById('rec-d'), share, D.pct);
-      document.getElementById('rec-dl').textContent = 'of the change present at the grant, ' + D.num(g.n) + ' granted records';
+      M.countTo(document.getElementById('rec-d'), share, D.pct, ms);
+      document.getElementById('rec-dl').textContent = 'of change at grant';
       document.getElementById('rec-a').className = 'num earlier';
       document.getElementById('rec-b').className = 'num killed';
       document.getElementById('rec-c').className = 'num current';
