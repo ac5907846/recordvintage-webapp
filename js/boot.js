@@ -1,7 +1,7 @@
 (function(global) {
   'use strict';
   var D = global.D;
-  var VER = '?v=7';
+  var VER = '?v=8';
   var store = {};
   var built = {};
   var current = null;
