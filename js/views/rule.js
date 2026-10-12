@@ -49,7 +49,7 @@
       apply.two = a.versioned === 'yes';
       reasons.two = a.versioned === 'yes' ? a.join === 'yes' ? 'the record is versioned and a second vintage is a join' : a.join === 'no' ? 'the record is versioned; the second vintage has to be assembled before it can be read' : 'the record is versioned' : a.versioned === 'no' ? 'the record is not versioned, so two versions cannot be read' : '';
       apply.coupling = a.versioned !== 'yes';
-      reasons.coupling = a.coupled === 'yes' ? 'the writing is coupled to the outcome, which is what does the damage here' : a.coupled === 'no' ? 'the writing is stated to be independent of the outcome; outcome-blind maintenance is the null against which dependence has to be shown' : a.coupled === 'unknown' ? 'whether the writing is coupled to the outcome is not known' : '';
+      reasons.coupling = a.coupled === 'yes' ? 'the writing is coupled to the outcome, which is what does the damage here' : a.coupled === 'no' ? 'the writing is stated to be independent of the outcome; outcome-blind maintenance is the benchmark against which dependence has to be shown' : a.coupled === 'unknown' ? 'whether the writing is coupled to the outcome is not known' : '';
       var html = '<h3>Which of the three asks applies</h3>';
       asks.forEach(function(k) {
         var on = apply[k.id];

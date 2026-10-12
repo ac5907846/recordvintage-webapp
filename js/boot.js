@@ -1,12 +1,12 @@
 (function(global) {
   'use strict';
   var D = global.D;
-  var VER = '?v=6';
+  var VER = '?v=7';
   var store = {};
   var built = {};
   var current = null;
   var SUBTITLES = {
-    findings: 'Classification vintage and the measurement of knowledge recombination',
+    findings: 'Codified organisational memory and the measurement of knowledge recombination',
     record: 'One record, written in instalments: as published, at the grant, today',
     vintage: 'The same 833,267 applications read from two states of their own record',
     kill: 'Preregistered tests reported as the frozen rule labelled them, failures beside successes',

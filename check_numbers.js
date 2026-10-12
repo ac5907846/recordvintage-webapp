@@ -175,11 +175,21 @@ check('verdict B in headline', h.verdict, 'B');
 
 const props = Object.fromEntries(h.propositions.map(p => [ p.id, p ]));
 
-check('three propositions', h.propositions.length, 3);
+check('four propositions', h.propositions.length, 4);
 
 check('P1 rests on D0 and K3a, both Support', props.P1.tests.map(t => t.label).join(','), 'Support,Support');
 
-check('P2 carries the aggregate support and the K1 kill', props.P2.tests.map(t => t.id + ':' + t.label).join(','), 'EXC:Support,K1:Kill,K4:Inconclusive');
+check('P2a rests on the reading at disposition and the excess', props.P2a.tests.map(t => t.id + ':' + t.label).join(','), 'Disp:Exploratory,EXC:Support');
+
+check('P2b carries the K1 kill and K4 inconclusive', props.P2b.tests.map(t => t.id + ':' + t.label).join(','), 'K1:Kill,K4:Inconclusive');
+
+check('gap at disposition +16.77', Math.round(h.gap_disposition * 100) / 100, 16.77);
+
+check('rise to disposition plus change after equals today minus as published', h.rise_disposition + h.change_after, h.vintage_all, .0025);
+
+check('gap as published interval spans zero', h.gap_published_ci[0] < 0 && h.gap_published_ci[1] > 0, true);
+
+check('K4 interval is for K, not for the raw difference', k.ledger.find(t => t.id === 'K4').ci[0] < 0, true);
 
 check('P3 carries K2b Support and K2c Kill', props.P3.tests.map(t => t.label).join(','), 'Support,Kill');
 
@@ -252,9 +262,9 @@ const P = Object.fromEntries(prov.items.map(it => [ it.label, it.value ]));
 
 check('provenance gap today matches headline', P['Grant gap, record today'], h.gap_today, 6e-4);
 
-check('provenance excess matches headline', P['Excess over the null, all code types'], h.excess_all, 6e-4);
+check('provenance excess matches headline', P['Excess over the benchmark, all code types'], h.excess_all, 6e-4);
 
-check('provenance K1 in pp', P['Post-decision code, granted minus never granted'] * 100, h.k1_beta, 6e-4);
+check('provenance K1 in pp', P['Post-horizon code, granted minus never granted'] * 100, h.k1_beta, 6e-4);
 
 check('provenance K2b in pp', P['Post-window revision per SD of forward citations'] * 100, h.k2b_beta, 6e-4);
 
@@ -264,7 +274,7 @@ check('prereg frozen 21 September 2026', ver.prereg.frozen_at.slice(0, 10), '202
 
 check('prereg hash prefix is 16 hex characters', /^[0-9a-f]{16}$/.test(ver.prereg.sha256_prefix), true);
 
-check('replication line carries no link', ver.replication.indexOf('http') === -1, true);
+check('replication line carries the reserved Zenodo DOI', ver.replication.indexOf('10.5281/zenodo.22929437') !== -1, true);
 
 check('four data sources, all https', ver.sources.filter(s => s.url.indexOf('https://') === 0).length, 4);
 
@@ -276,9 +286,9 @@ check('reading rule has four questions and three asks', rule.questions.length * 
 
 const text = JSON.stringify([ h, v, mv, k, rec, prov, ver, rule ]) + fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8') + fs.readdirSync(path.join(__dirname, 'js')).filter(f => f.endsWith('.js')).map(f => fs.readFileSync(path.join(__dirname, 'js', f), 'utf8')).join('') + fs.readdirSync(path.join(__dirname, 'js', 'views')).map(f => fs.readFileSync(path.join(__dirname, 'js', 'views', f), 'utf8')).join('');
 
-check('no em dash anywhere', text.indexOf('—') === -1, true);
+check('no em dash anywhere', text.indexOf(String.fromCharCode(0x2014)) === -1, true);
 
-check('no "corpus" anywhere', /corpus/i.test(text), false);
+check('no banned word anywhere', new RegExp('corp' + 'us', 'i').test(text), false);
 
 check('no "temporal leakage" anywhere', /temporal leakage/i.test(text), false);
 

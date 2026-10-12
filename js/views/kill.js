@@ -21,7 +21,7 @@
     D0: 'Vintage moves the gap, code type fixed?',
     K3a: 'Vintage explains more than code type?',
     K4: 'Excess rises with exposure to revision?',
-    K1: 'Post-decision information related to the decision?',
+    K1: 'Post-horizon information related to the decision?',
     K2b: 'Late revision tracks later citations?',
     K2c: 'Post-grant revision tracks market value?',
     K5a: 'Unreclassifiable measure sides with published record?',
@@ -181,7 +181,7 @@
       };
       ctx.save();
       ctx.font = '10.5px ' + D.FONT;
-      var tw = ctx.measureText(label).width + 14;
+      var tw = ctx.measureText(D.say(label)).width + 14;
       ctx.fillStyle = fills[label] || P.faint;
       ctx.fillRect(x, y - 8, tw, 16);
       if (label === 'Exploratory') {
@@ -189,7 +189,7 @@
         ctx.strokeRect(x + .5, y - 7.5, tw, 16);
       }
       ctx.restore();
-      D.text(ctx, label, x + 7, y, {
+      D.text(ctx, D.say(label), x + 7, y, {
         size: 10.5,
         color: '#000'
       });
@@ -202,7 +202,7 @@
       if (!row) return null;
       var t = row.t;
       var est = t.estimate === null ? t.text : (t.unit === 'closure' ? D.dec(t.estimate, 3) : D.pp(t.estimate, t.id === 'K6r' ? 3 : 2)) + (t.unit && t.unit !== 'closure' ? ' ' + UNIT[t.unit] : '');
-      var html = '<b>' + t.id + '</b> <span class="chip ' + t.label + '">' + t.label + '</span><br>' + t.question + '<br><span class="num">' + est + '</span>';
+      var html = '<b>' + t.id + '</b> <span class="chip ' + t.label + '">' + D.say(t.label) + '</span><br>' + t.question + '<br><span class="num">' + est + '</span>';
       if (t.ci) html += ' ' + (t.unit === 'closure' ? '[' + D.dec(t.ci[0], 3) + ', ' + D.dec(t.ci[1], 3) + ']' : D.ci(t.ci, t.id === 'K6r' ? 3 : 2)) + (t.ci_level ? ', 90% interval' : '');
       if (t.se) html += ', standard error ' + D.dec(t.se, 2);
       if (t.band) html += '<br>equivalence region ±' + D.dec(t.band, 3);

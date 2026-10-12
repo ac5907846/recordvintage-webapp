@@ -350,6 +350,13 @@
     };
   }
   global.D = {
+    say: function(l) {
+      return {
+        Support: 'Supported',
+        Kill: 'Refuted',
+        Pass: 'Passed'
+      }[l] || l;
+    },
     P: P,
     SEQ: SEQ,
     FONT: FONT,

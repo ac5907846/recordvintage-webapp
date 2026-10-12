@@ -237,6 +237,82 @@
         }
       }
     }, {
+      title: 'Read at disposition',
+      cells: [ {
+        v: h.gap_published,
+        f: D.pp,
+        lab: 'as published, pp',
+        tone: 'earlier'
+      }, {
+        v: h.gap_disposition,
+        f: D.pp,
+        lab: 'at disposition, pp',
+        tone: ''
+      }, {
+        v: h.gap_today,
+        f: D.pp,
+        lab: 'today, pp',
+        tone: 'current'
+      } ],
+      picto: function() {
+        var y = D.scale(-2, 18, 54, 12), xs = [ 40, 120, 200 ];
+        var v = [ h.gap_published, h.gap_disposition, h.gap_today ], cols = [ P.earlier, P.charcoal, P.current ];
+        var line = '<polyline points="' + xs.map(function(x, i) {
+          return x + ',' + y(v[i]);
+        }).join(' ') + '" fill="none" stroke="' + P.charcoal + '" stroke-width="1.6"/>';
+        var dots = xs.map(function(x, i) {
+          return '<circle cx="' + x + '" cy="' + y(v[i]) + '" r="5.5" fill="' + (i === 0 ? '#fff' : cols[i]) + '" stroke="' + cols[i] + '" stroke-width="2"/>';
+        }).join('');
+        return svg('<line x1="16" y1="' + y(0) + '" x2="224" y2="' + y(0) + '" stroke="' + P.spine + '"/>' + line + dots + txt(40, 68, 'published', P.earlier, 'middle') + txt(120, 68, 'disposition', P.charcoal, 'middle') + txt(200, 68, 'today', P.current, 'middle'));
+      },
+      x: function() {
+        return D.scale(-3, 25, self.plot.x0, self.plot.x1);
+      },
+      k: function(u) {
+        return [ M.ease(Math.max(0, Math.min(1, (u - .12) / .3))), M.ease(Math.max(0, Math.min(1, (u - .55) / .3))) ];
+      },
+      targets: function(m, i, u) {
+        var p = self.plot, x = this.x(), k = this.k(u);
+        var g = h.gap_published + (h.gap_disposition - h.gap_published) * k[0] + (h.gap_today - h.gap_disposition) * k[1];
+        var cx = x(g), cy = (p.y0 + p.y1) / 2;
+        var R = Math.min((p.y1 - p.y0) * .36, 78);
+        var rad = R * Math.sqrt((i + .5) / N), ang = i * 2.399963;
+        m.x = cx + rad * Math.cos(ang);
+        m.y = cy + rad * Math.sin(ang);
+        m.r = Math.max(2.4, R / 22);
+        for (var j = 0; j < 3; j++) m.c[j] = RGB.earlier[j] + (RGB.charcoal[j] - RGB.earlier[j]) * k[0] + (RGB.current[j] - RGB.charcoal[j]) * k[1];
+        m.a = 1;
+      },
+      overlay: function(ctx, al, u) {
+        var p = self.plot, x = this.x(), k = this.k(u);
+        D.axisX(ctx, x, p.y0, p.y1, D.niceTicks(0, 20, 5), function(t) {
+          return D.pp(t, 0).replace('+0', '0');
+        }, self.narrow() ? 'grant gap, pp' : 'grant gap, 5+ new pairs against none, pp');
+        D.vline(ctx, x(0), p.y0, p.y1, P.spine, 1.2);
+        var cy = (p.y0 + p.y1) / 2, R = Math.min((p.y1 - p.y0) * .36, 78);
+        D.text(ctx, D.pp(h.gap_published) + ' as published', x(h.gap_published), cy - R - 14, {
+          color: P.earlier,
+          size: 12.5,
+          weight: '600',
+          align: 'center',
+          alpha: al
+        });
+        D.text(ctx, D.pp(h.gap_disposition) + ' at disposition', x(h.gap_disposition), cy - R - 14, {
+          color: P.charcoal,
+          size: 12.5,
+          weight: '600',
+          align: 'center',
+          alpha: al * k[0]
+        });
+        D.text(ctx, D.pp(h.gap_today) + ' today', x(h.gap_today), cy + R + 24, {
+          color: P.current,
+          size: 12.5,
+          weight: '600',
+          align: 'center',
+          alpha: al * k[1]
+        });
+      }
+    }, {
       title: 'Vintage or the counting rule',
       cells: [ {
         v: h.contrast,
@@ -256,7 +332,7 @@
       } ],
       picto: function() {
         var x = D.scale(0, h.contrast, 14, 226);
-        return svg('<rect x="' + x(0) + '" y="22" width="' + (x(h.shapley_vintage) - x(0)) + '" height="20" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + '<rect x="' + x(h.shapley_vintage) + '" y="22" width="' + (x(h.contrast) - x(h.shapley_vintage)) + '" height="20" fill="' + P.tintNeutral + '" stroke="' + P.charcoal + '" stroke-width="1.2"/>' + txt(x(h.shapley_vintage / 2), 32, 'vintage ' + D.pp(h.shapley_vintage), '#000', 'middle') + txt(x(h.contrast), 55, 'code type ' + D.pp(h.shapley_type), P.charcoal, 'end') + '<line x1="' + x(h.null_all) + '" y1="46" x2="' + x(h.null_all) + '" y2="58" stroke="' + P.charcoal + '" stroke-width="1.4"/>' + txt(x(h.null_all) + 5, 55, 'outcome-blind null ' + D.pp(h.null_all), P.charcoal, 'start') + txt(x(h.contrast / 2), 15, 'contrast ' + D.pp(h.contrast), P.charcoal, 'middle'));
+        return svg('<rect x="' + x(0) + '" y="22" width="' + (x(h.shapley_vintage) - x(0)) + '" height="20" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + '<rect x="' + x(h.shapley_vintage) + '" y="22" width="' + (x(h.contrast) - x(h.shapley_vintage)) + '" height="20" fill="' + P.tintNeutral + '" stroke="' + P.charcoal + '" stroke-width="1.2"/>' + txt(x(h.shapley_vintage / 2), 32, 'vintage ' + D.pp(h.shapley_vintage), '#000', 'middle') + txt(x(h.contrast), 55, 'code type ' + D.pp(h.shapley_type), P.charcoal, 'end') + '<line x1="' + x(h.null_all) + '" y1="46" x2="' + x(h.null_all) + '" y2="58" stroke="' + P.charcoal + '" stroke-width="1.4"/>' + txt(x(h.null_all) + 5, 55, 'benchmark ' + D.pp(h.null_all), P.charcoal, 'start') + txt(x(h.contrast / 2), 15, 'contrast ' + D.pp(h.contrast), P.charcoal, 'middle'));
       },
       x: function() {
         return D.scale(-.4, 5.2, self.plot.x0, self.plot.x1);
@@ -307,7 +383,7 @@
           var y2 = barTop + barH + 40;
           D.hline(ctx, y2, x(0), x(h.vintage_all), P.neutral, 1.4);
           D.vline(ctx, x(h.null_all), y2 - 18, y2 + 8, P.neutral, 1.2, [ 3, 3 ]);
-          D.text(ctx, 'outcome-blind ' + D.pp(h.null_all), x(h.null_all) + 5, y2 - 12, {
+          D.text(ctx, 'benchmark ' + D.pp(h.null_all), x(h.null_all) + 5, y2 - 12, {
             size: 11
           });
           D.hline(ctx, y2 + 14, x(h.null_all), x(h.vintage_all), P.charcoal, 1);
@@ -325,7 +401,7 @@
       cells: [ {
         v: h.k1_beta,
         f: D.pp,
-        lab: 'post-decision code gap, pp',
+        lab: 'post-horizon code gap, pp',
         tone: 'killed'
       }, {
         v: h.k1_base,
@@ -343,7 +419,7 @@
       picto: function() {
         var x = D.scale(-1.6, 1.6, 14, 176);
         var xs = D.scale(0, 1, 14, 226);
-        return svg(band(x(-h.k1_band), x(h.k1_band), 8, 30) + '<line x1="' + x(0) + '" y1="6" x2="' + x(0) + '" y2="32" stroke="' + P.spine + '" stroke-width="1.2"/>' + '<line x1="' + x(h.k1_ci90[0]) + '" y1="19" x2="' + x(h.k1_ci90[1]) + '" y2="19" stroke="' + P.charcoal + '" stroke-width="2.4"/>' + '<circle cx="' + x(h.k1_beta) + '" cy="19" r="4" fill="' + P.charcoal + '"/>' + chip(186, 10, 'Kill', P.tintNeutral) + '<rect x="' + xs(0) + '" y="44" width="' + (xs(h.share_at_grant) - xs(0)) + '" height="18" fill="' + P.tintNeutral + '" stroke="' + P.charcoal + '" stroke-width="1.2"/>' + '<rect x="' + xs(h.share_at_grant) + '" y="44" width="' + (xs(1) - xs(h.share_at_grant)) + '" height="18" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + txt(xs(h.share_at_grant / 2), 53, D.pct(h.share_at_grant) + ' at grant', '#000', 'middle') + txt(xs((1 + h.share_at_grant) / 2), 53, 'after', '#000', 'middle'));
+        return svg(band(x(-h.k1_band), x(h.k1_band), 8, 30) + '<line x1="' + x(0) + '" y1="6" x2="' + x(0) + '" y2="32" stroke="' + P.spine + '" stroke-width="1.2"/>' + '<line x1="' + x(h.k1_ci90[0]) + '" y1="19" x2="' + x(h.k1_ci90[1]) + '" y2="19" stroke="' + P.charcoal + '" stroke-width="2.4"/>' + '<circle cx="' + x(h.k1_beta) + '" cy="19" r="4" fill="' + P.charcoal + '"/>' + chip(186, 10, 'Refuted', P.tintNeutral) + '<rect x="' + xs(0) + '" y="44" width="' + (xs(h.share_at_grant) - xs(0)) + '" height="18" fill="' + P.tintNeutral + '" stroke="' + P.charcoal + '" stroke-width="1.2"/>' + '<rect x="' + xs(h.share_at_grant) + '" y="44" width="' + (xs(1) - xs(h.share_at_grant)) + '" height="18" fill="' + P.tintCurrent + '" stroke="' + P.current + '" stroke-width="1.2"/>' + txt(xs(h.share_at_grant / 2), 53, D.pct(h.share_at_grant) + ' at grant', '#000', 'middle') + txt(xs((1 + h.share_at_grant) / 2), 53, 'after', '#000', 'middle'));
       },
       x: function() {
         return D.scale(-1.65, 1.65, self.plot.x0, self.plot.x1);
@@ -385,7 +461,7 @@
           alpha: al
         });
         D.hline(ctx, base + 1, x(h.k1_ci90[0]), x(h.k1_ci90[1]), P.charcoal, 3);
-        D.text(ctx, D.pp(h.k1_beta) + ' [' + D.pp(h.k1_ci90[0]) + ', ' + D.pp(h.k1_ci90[1]) + ']' + (self.narrow() ? ', killed' : ', killed by equivalence'), self.narrow() ? (p.x0 + p.x1) / 2 : x(h.k1_beta), base + 38, {
+        D.text(ctx, D.pp(h.k1_beta) + ' [' + D.pp(h.k1_ci90[0]) + ', ' + D.pp(h.k1_ci90[1]) + ']' + (self.narrow() ? ', refuted' : ', refuted by equivalence'), self.narrow() ? (p.x0 + p.x1) / 2 : x(h.k1_beta), base + 38, {
           size: 12,
           weight: '600',
           align: 'center',
@@ -456,7 +532,7 @@
         var row = function(y, beta, ci, bandw, col, label, chipTxt, chipFill) {
           return band(x(-bandw), x(bandw), y - 11, y + 11) + '<line x1="' + x(0) + '" y1="' + (y - 13) + '" x2="' + x(0) + '" y2="' + (y + 13) + '" stroke="' + P.spine + '" stroke-width="1.2"/>' + '<line x1="' + x(ci[0]) + '" y1="' + y + '" x2="' + x(ci[1]) + '" y2="' + y + '" stroke="' + col + '" stroke-width="2.4"/>' + '<circle cx="' + x(beta) + '" cy="' + y + '" r="4" fill="' + col + '"/>' + txt(60, y, label, P.charcoal, 'end') + chip(186, y - 9, chipTxt, chipFill);
         };
-        return svg(row(19, h.k2b_beta, h.k2b_ci95, h.k2b_band, P.survives, 'citations', 'Support', P.tintSurvives) + row(53, h.k2c_beta, h.k2c_ci95, h.k2c_band, P.killed, 'market value', 'Kill', P.tintNeutral));
+        return svg(row(19, h.k2b_beta, h.k2b_ci95, h.k2b_band, P.survives, 'citations', 'Supported', P.tintSurvives) + row(53, h.k2c_beta, h.k2c_ci95, h.k2c_band, P.killed, 'market value', 'Refuted', P.tintNeutral));
       },
       x: function() {
         return D.scale(-2.8, 2.8, self.plot.x0, self.plot.x1);
@@ -503,7 +579,7 @@
         D.band(ctx, x(-h.k2c_band), x(h.k2c_band), y2 - 14, y2 + 14, P.band, P.killed);
         D.hline(ctx, y2, x(h.k2c_ci95[0]), x(h.k2c_ci95[1]), P.killed, 3);
         D.dot(ctx, x(h.k2c_beta), y2, 4.5, P.killed, '#fff', 1);
-        D.text(ctx, 'market value ' + D.pp(h.k2c_beta) + (self.narrow() ? ', killed' : ' per SD, killed'), x(h.k2c_ci95[1]) + 10, y2, {
+        D.text(ctx, 'market value ' + D.pp(h.k2c_beta) + (self.narrow() ? ', refuted' : ' per SD, refuted'), x(h.k2c_ci95[1]) + 10, y2, {
           size: 11.5,
           color: P.charcoal
         });
@@ -679,7 +755,7 @@
     ctx.globalAlpha = 1;
   };
   Hero.prototype.hit = function(x, y) {
-    if (this.stage !== 5) return null;
+    if (this.stage !== 6) return null;
     var best = null, bd = 64;
     for (var i = 0; i < N; i++) {
       var m = this.marks[i], d = (m.x - x) * (m.x - x) + (m.y - y) * (m.y - y);

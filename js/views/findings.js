@@ -8,9 +8,10 @@
     return s;
   }
   var STATE = {
-    P1: [ 'Support', 'Support' ],
-    P2: [ 'Support', 'Support, aggregate only' ],
-    P3: [ 'Support', 'Support, one channel' ]
+    P1: [ 'Support', 'Supported' ],
+    P2a: [ 'Exploratory', 'Descriptive' ],
+    P2b: [ 'Kill', 'Refuted' ],
+    P3: [ 'Support', 'Supported, one channel' ]
   };
   function state(p) {
     var s = STATE[p.id];
@@ -22,10 +23,10 @@
       var tiles = document.getElementById('tiles');
       tiles.innerHTML = h.propositions.map(function(p) {
         return '<div class="tile">' + '<div class="pid">' + p.id + ' <span>' + p.name + '</span>' + state(p) + '</div>' + '<div class="tests">' + p.tests.map(function(t) {
-          return '<div class="test"><span class="id">' + t.id + '</span><span><span class="chip ' + t.label + '">' + t.label + '</span></span><span class="est">' + fmtEst(t) + '</span></div>';
+          return '<div class="test"><span class="id">' + t.id + '</span><span><span class="chip ' + t.label + '">' + D.say(t.label) + '</span></span><span class="est">' + fmtEst(t) + '</span></div>';
         }).join('') + '</div>' + '</div>';
       }).join('');
-      document.getElementById('verdictline').textContent = 'Verdict of the frozen rule: ' + h.verdict + ', partially supported. Labels are those the rule assigned mechanically; nothing here is identified causally.';
+      document.getElementById('verdictline').textContent = 'Verdict of the frozen rule: partially supported. Labels are those the rule assigned mechanically, refuted being the plan’s kill; nothing here is identified causally.';
     }
   };
   global.Findings = Findings;

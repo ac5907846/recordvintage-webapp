@@ -29,7 +29,7 @@ Recomputes or looks up every headline value the app displays against `data/` and
 python build_ask.py
 ```
 
-Splits `03_manuscript/working_v3/manuscript_v3.md` (abstract and body, tables skipped) and the figure
+Splits `03_manuscript/working_v4/manuscript_v4.md` (abstract and body, tables skipped) and the figure
 captions into passages and sentences, embeds them with `sentence-transformers/all-MiniLM-L6-v2` on this
 machine, and writes `data/ask.json` (the passages, their section tags, the sentence spans, the
 prototype sentences behind the record reading, and the embeddings) plus `data/ask_check.json` (a few
@@ -73,10 +73,10 @@ animation frame.
    folder `/`. `.nojekyll` is already in the folder so the `_archive` and underscore paths are
    served as they are.
 3. Add a file named `CNAME` at the root containing only the subdomain, for example
-   `<subdomain>.electriai.com` (fill in the name).
-4. In Cloudflare, DNS for `electriai.com`: add a record
+   `<subdomain>.<your-domain>` (fill in the name).
+4. In Cloudflare, DNS for `<your-domain>`: add a record
    `CNAME  <subdomain>  <github-user>.github.io`, proxy status **DNS only** (grey cloud).
-5. Back in GitHub Pages, set the custom domain to `<subdomain>.electriai.com`, wait for the DNS
+5. Back in GitHub Pages, set the custom domain to `<subdomain>.<your-domain>`, wait for the DNS
    check, then tick "Enforce HTTPS" once the certificate is issued. If the certificate sticks,
    remove the custom domain and add it again.
 6. On every release, bump `?v=N` on every asset reference in `index.html` and in `VER` in

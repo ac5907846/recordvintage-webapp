@@ -92,7 +92,7 @@ if (fs.existsSync(manPath) && fs.existsSync(capPath)) {
 
 ask.asks.forEach(a => check(`ask ${a.id} has at least one prototype`, ask.protos.some(r => r.ask === a.id)));
 
-const words = [ 'corpus', '—', '0.0' ];
+const words = [ 'corp' + 'us', String.fromCharCode(0x2014), '0.0' ];
 
 ask.asks.forEach(a => words.forEach(w => check(`ask ${a.id} label avoids ${JSON.stringify(w)}`, (a.label + a.cost).indexOf(w) < 0)));
 

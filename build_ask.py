@@ -8,8 +8,8 @@ from sentence_transformers import SentenceTransformer
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-MANUSCRIPT = ROOT / '03_manuscript' / 'working_v3' / 'manuscript_v3.md'
-CAPTIONS = ROOT / '03_manuscript' / 'v3_submission' / 'figure_captions_v3.json'
+MANUSCRIPT = ROOT / '03_manuscript' / 'working_v4' / 'manuscript_v4.md'
+CAPTIONS = ROOT / '03_manuscript' / 'working_v4' / 'figure_captions_v4.json'
 OUT = HERE / 'data' / 'ask.json'
 CHECK = HERE / 'data' / 'ask_check.json'
 MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
@@ -21,56 +21,55 @@ ASKS = [
         'id': 'when',
         'label': 'Ask 1, when the measure was written',
         'cost': 'cheapest',
-        'quote': 'ask when the measure was written, not only what it says, meaning whether the categories and assignments existed at the event they are dated to',
+        'quote': 'Ask when the measure was written, not only what it says.',
         'protos': [
-            'ask when the measure was written, not only what it says, meaning whether the categories and assignments existed at the event they are dated to',
+            'Ask when the measure was written, not only what it says.',
             'the categories available now are not those available then',
             'Every symbol carries a validity date',
-            'An anachronistic code is a current code whose symbol’s validity date postdates the document’s own publication',
-            'the timing arguments establish only that information cannot have been written before an event',
+            'An anachronistic code is a current code whose symbol’s validity date postdates the document’s publication',
+            'the timing arguments establish only that information could not have been written before an event',
         ],
     },
     {
         'id': 'two',
         'label': 'Ask 2, read two versions',
         'cost': 'a join',
-        'quote': 'if the artefact is versioned, read two versions and state which one an estimate comes from, since a second version is a join, not a new data collection',
+        'quote': 'If the artefact is versioned, read two versions and state which one an estimate comes from, since a second version is a join rather than a new data collection.',
         'protos': [
-            'if the artefact is versioned, read two versions and state which one an estimate comes from, since a second version is a join, not a new data collection',
+            'If the artefact is versioned, read two versions and state which one an estimate comes from, since a second version is a join rather than a new data collection.',
             'The patent record is used here because its earlier states are published and dated rather than inferred',
-            'Only the date at which the classification record is read varies',
-            'The design therefore compares two versions of one record, measuring neither against the truth',
+            'only the state of each application’s record changes',
             'Maintenance is continuous while the events a record describes are not, so one document accumulates several states of its own entry',
+            'The design reads one maintained record at its own dates',
         ],
     },
     {
         'id': 'coupling',
         'label': 'Ask 3, whether the writing is coupled to the outcome',
         'cost': 'a question about the keeper',
-        'quote': 'if it is not, ask whether the writing is coupled to the outcome, because here coupling, not revision, does the damage',
+        'quote': 'If it is not versioned, ask whether entries are completed on the outcome’s schedule, because here coupling at the decision moves the estimate far more than datable revision after it.',
         'protos': [
-            'if it is not, ask whether the writing is coupled to the outcome, because here coupling, not revision, does the damage',
-            'A measure can therefore inherit an outcome without any revision made in its light, if the writing and the outcome share a schedule',
-            'the writing of the record and the decision share a schedule',
-            'the record of a granted application is written in instalments, at publication, again at the grant and then maintained',
-            'Nothing in that arrangement ties the revision of one record to what happened to that record',
-            'Where documentation is completed on the outcome’s schedule, as an incident report may be on escalation, a customer record when a deal closes or a case file on decision, the density of the record can track the outcome',
-            'a codified memory is dated by the schedule on which it was written, not by the events its entries describe, and a secondary user who reads it as a history has to recover that schedule first',
-            'P2 separates a store from a record whose writing schedule is tied to the process under study',
-            'reclassified patents tend to be more cited than those that were not',
+            'If it is not versioned, ask whether entries are completed on the outcome’s schedule, because here coupling at the decision moves the estimate far more than datable revision after it.',
+            'Decision-coupled writing completes entries when the organisation decides, so the density of a record follows the decision',
+            'Entries are not rewritten in hindsight; they are written on the organisation’s own decision schedule',
+            'Reading each application at disposition, from its grant-time record if granted and its record as published if refused',
+            'Nothing in the arrangement ties the revision of one record to what happened to that record',
+            'Documentation completed on an outcome’s schedule is common, from incident reports written up on escalation to customer records enriched when a deal closes and case files completed at decision',
+            'The incentive to complete a record can also arrive with a decision.',
+            'reclassified patents tend to be more cited',
         ],
     },
     {
         'id': 'keeper',
         'label': 'What this asks of the keeper',
         'cost': 'for the keeper of the record',
-        'quote': 'To serve historical work, the keeper should date assignments and keep superseded states as first-class objects rather than by-products of a snapshot.',
+        'quote': 'For keepers of shared classifications such as the patent offices, dating each assignment and keeping superseded states as first-class objects would let historical users do directly what this paper could do only through symbol validity dates',
         'protos': [
-            'To serve historical work, the keeper should date assignments and keep superseded states as first-class objects rather than by-products of a snapshot.',
-            'The keeper of this scheme already publishes most of what a historical user needs, except a date on each assignment',
-            'Accuracy is a separate question from vintage, and not a reassuring one',
-            'A record optimised for historical inference is judged by whether it can be read back to a date',
-            'A record optimised for present retrieval is judged by whether the next search succeeds, and it earns its revisions',
+            'For keepers of shared classifications such as the patent offices, dating each assignment and keeping superseded states as first-class objects would let historical users do directly what this paper could do only through symbol validity dates',
+            'Store the date of each classification or tag assignment and keep superseded versions of the taxonomy, so that the repository can answer what it said on a given date.',
+            'Accuracy is a separate question',
+            'a record used for historical inference has to be read back to a date',
+            'A record kept for present retrieval is judged by whether the next search succeeds',
         ],
     },
 ]
@@ -92,13 +91,14 @@ def read_manuscript():
     sec, head = '', ''
     for para in body.split('\n\n'):
         para = para.strip()
-        if not para or para.startswith('[[table'):
+        if not para or para.startswith('[[table') or para.startswith('[[figure'):
             continue
         m = re.match(r'^(#{2,3})\s+([0-9]+(?:\.[0-9]+)?)\.?\s+(.*)$', para)
         if m:
             sec, head = m.group(2), m.group(3).strip()
             continue
         if para.startswith('#'):
+            sec, head = '', para.lstrip('#').strip()
             continue
         passages.append({'sec': sec, 'head': head, 'text': para, 'source': 'manuscript'})
     for p in passages:

@@ -129,7 +129,7 @@
         small: D.ci(V.ci95),
         id: 'lab-v'
       }, {
-        k: 'outcome-blind null',
+        k: 'permutation benchmark',
         v: D.pp(nul.V0),
         id: 'lab-null'
       }, {
